@@ -15,9 +15,7 @@ class MineSweeper : Application() {
 
     override fun start(stage: Stage) {
         stage.title = "Mine Sweeper"
-        val scene = MineField()
-        scene.setPrefSize(238.0, 200.0)
-        stage.scene = Scene(scene)
+        stage.scene = Scene(Field())
         stage.show()
     }
 }

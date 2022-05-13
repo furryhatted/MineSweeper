@@ -1,0 +1,20 @@
+.field {
+    -fx-background-color: #333333;
+}
+
+.tile {
+    -fx-background-color: #f3f3f3;
+    -fx-border-color: #0a0a0a;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+    -fx-font-size: 20;
+    -fx-font-weight: bold;
+}
+
+.tile:hover {
+    -fx-opacity: 0.8;
+    -fx-background-color: #3333f0;
+}
+.tile:disabled {
+    -fx-background-color: #333333;
+}
