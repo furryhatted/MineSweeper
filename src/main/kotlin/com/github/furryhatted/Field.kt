@@ -1,55 +1,53 @@
 package com.github.furryhatted
 
-import javafx.event.EventHandler
-import javafx.scene.control.Alert
-import javafx.scene.input.MouseButton
-import javafx.scene.layout.FlowPane
+import javafx.scene.layout.Pane
 import org.slf4j.LoggerFactory
 
 class Field(
-    private val width: Int = DEFAULT_FIELD_WIDTH,
-    private val height: Int = DEFAULT_FIELD_HEIGHT,
-    private val mines: Int = DEFAULT_MINE_COUNT
-) : FlowPane() {
-    private val logger = LoggerFactory.getLogger(this::class.java)
-    private val neighbours: List<List<Int>> = (0 until width * height).map { adjacentTiles(it, width, width * height) }
+    val columns: Int = DEFAULT_FIELD_WIDTH,
+    val rows: Int = DEFAULT_FIELD_HEIGHT,
+    val mines: Int = DEFAULT_MINE_COUNT
+) : Pane() {
+    private val neighbours: List<List<Int>> =
+        (0 until columns * rows).map { adjacentTiles(it, columns, columns * rows) }
+    internal val tiles
+        get() = this.children.map { it as Tile }
 
-    private fun setMines() =
-        this.children.shuffled().take(mines).forEach { (it as Tile).tooltip = -1 }
+    internal var score: Int = 0
+        private set(value) {
+            field = value
+            logger.debug("Score set: $field")
+        }
 
-    private fun setTooltips() {
-        this.children.map { it as Tile }
-            .filter { !it.isMined }
-            .forEach { t ->
-                t.tooltip =
-                    neighbours[t.id].count { (this.children[it] as Tile).isMined }
-            }
+    private fun minesNear(center: Tile): Int =
+        neighbours[center.id].map { this.tiles[it].tooltip }.count { it == -1 }
+            .apply { logger.debug("minesNear() is $this for $center") }
+
+    internal fun open(tile: Tile) {
+        if (!tile.doOpen()) return
+        if (tile.isMined) score /= 2 else score++
+        if (tile.tooltip != 0) return
+        neighbours[tile.id]
+            .map { this.tiles[it] }
+            .filter { !(it.isMarked && it.isDisabled) }
+            .forEach { open(it) }
     }
 
-    private fun cascadeOpen(tile: Tile) {
-        if (tile.isDisabled) return
-        tile.open()
-        if (tile.tooltip == 0) neighbours[tile.id].forEach { cascadeOpen(this.children[it] as Tile) }
+    internal fun mark(tile: Tile) {
+        if (tile.doMark()) score += 10 else score -= 10
     }
 
     init {
-        this.stylesheets.add("default.css")
         this.styleClass.add("field")
-        this.children.addAll((0 until width * height).map { Tile(it) })
-        this.children.map { it as Tile }.forEach { tile ->
-            tile.onMouseClicked = EventHandler { event ->
-                when (event.button) {
-                    MouseButton.PRIMARY -> cascadeOpen(tile)
-                    MouseButton.SECONDARY -> tile.mark()
-                    else -> Alert(Alert.AlertType.CONFIRMATION, "Dude! Da fuk ur doing?!").showAndWait()
-                }
+        (0 until columns * rows).map {
+            Tile(it).apply {
+                layoutX = (it % columns) * Tile.DEFAULT_SIZE
+                layoutY = (it / columns) * Tile.DEFAULT_SIZE
             }
-        }
-
-        this.setMines()
-        this.setTooltips()
-        this.setPrefSize(Tile.DEFAULT_SIZE * (width + 1), Tile.DEFAULT_SIZE * (height + 1))
-
+        }.forEach { this.children.add(it) }
+        this.tiles.forEach { it.onMouseClicked = TileEventHandler }
+        this.tiles.shuffled().take(mines).forEach { it.tooltip = -1 }
+        this.tiles.filter { !it.isMined }.forEach { it.tooltip = minesNear(it) }
     }
 
 
@@ -57,5 +55,6 @@ class Field(
         private const val DEFAULT_FIELD_WIDTH: Int = 10
         private const val DEFAULT_FIELD_HEIGHT: Int = 10
         private const val DEFAULT_MINE_COUNT: Int = 10
+        private val logger = LoggerFactory.getLogger(Field::class.java)
     }
 }
