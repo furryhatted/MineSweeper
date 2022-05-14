@@ -1,20 +1,87 @@
+.root {
+    -fx-view-order: 5;
+    -fx-background-color: #444444;
+    -fx-alignment: center;
+    -fx-padding: 4pc;
+    -fx-cursor: hand;
+}
+
 .field {
-    -fx-background-color: #333333;
+    -fx-view-order: 4;
+    -fx-background-color: #444444;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(three-pass-box, #101010, 25, 0.05, 0, 0);
 }
 
 .tile {
-    -fx-background-color: #f3f3f3;
-    -fx-border-color: #0a0a0a;
+    -fx-view-order: 1;
+    -fx-background-color: #cacaca;
+    -fx-border-color: #101010;
     -fx-border-style: solid;
-    -fx-border-width: 1;
-    -fx-font-size: 20;
+    -fx-border-width: 1px;
+}
+
+.tile .text {
+    -fx-font-size: 20px;
     -fx-font-weight: bold;
+    -fx-effect: dropshadow(two-pass-box, #101010, 10, 0.15, 0, 0);
 }
 
 .tile:hover {
-    -fx-opacity: 0.8;
-    -fx-background-color: #3333f0;
+    -fx-view-order: 0;
+    -fx-background-color: radial-gradient(center 50% 50%, radius 200%, #3030f1, #cacaca);
+    -fx-effect: dropshadow(three-pass-box, #3030f1, 15, 0.25, 0, 0);
 }
+
 .tile:disabled {
-    -fx-background-color: #333333;
+    -fx-view-order: 3;
+    -fx-background-color: #444444;
+    -fx-effect: innershadow(three-pass-box, #1c1c1c, 25, 0.05, 0, 0);
+}
+
+.dialog-pane {
+    -fx-border-color: #cacaca;
+    -fx-border-width: 1px;
+    -fx-cursor: default;
+}
+
+.dialog-pane .content.label {
+    -fx-background-color: #444444;
+    -fx-text-fill: #f3f3f3;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: #444444;
+    -fx-border-style: solid;
+    -fx-border-color: #f3f3f3;
+}
+
+.dialog-pane .header-panel .label {
+    -fx-text-fill: #f3f3f3;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-alignment: right;
+    -fx-text-origin: top;
+}
+
+.dialog-pane .button-bar {
+    -fx-background-color: #444444;
+    -fx-alignment: center;
+}
+
+.dialog-pane .button {
+    -fx-background-color: #444444;
+    -fx-alignment: center;
+    -fx-text-fill: #f3f3f3;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-alignment: right;
+    -fx-border-style: solid;
+    -fx-border-color: #f3f3f3;
+}
+
+.dialog-pane .button:hover {
+    -fx-effect: dropshadow(three-pass-box, #f3f3f3, 10, 0.25, 0, 0);
 }

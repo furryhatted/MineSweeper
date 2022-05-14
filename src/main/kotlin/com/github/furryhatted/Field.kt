@@ -4,9 +4,9 @@ import javafx.scene.layout.Pane
 import org.slf4j.LoggerFactory
 
 class Field(
-    val columns: Int = DEFAULT_FIELD_WIDTH,
-    val rows: Int = DEFAULT_FIELD_HEIGHT,
-    val mines: Int = DEFAULT_MINE_COUNT
+    private val columns: Int = DEFAULT_FIELD_WIDTH,
+    private val rows: Int = DEFAULT_FIELD_HEIGHT,
+    private val mines: Int = DEFAULT_MINE_COUNT
 ) : Pane() {
     private val neighbours: List<List<Int>> =
         (0 until columns * rows).map { adjacentTiles(it, columns, columns * rows) }
@@ -48,8 +48,11 @@ class Field(
         this.tiles.forEach { it.onMouseClicked = TileEventHandler }
         this.tiles.shuffled().take(mines).forEach { it.tooltip = -1 }
         this.tiles.filter { !it.isMined }.forEach { it.tooltip = minesNear(it) }
+        logger.debug("Created $this")
     }
 
+    override fun toString(): String =
+        "${javaClass.simpleName}[columns=$columns; rows=$rows; mines=$mines]"
 
     companion object {
         private const val DEFAULT_FIELD_WIDTH: Int = 10
