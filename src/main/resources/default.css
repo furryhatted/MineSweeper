@@ -25,7 +25,7 @@
     -fx-border-width: 2px;
     -fx-border-color: #eee;
     -fx-border-style: solid;
-    -fx-background-color: #333;
+    -fx-background-color: #444;
     -fx-effect: dropshadow(two-pass-box, #111, 50, 0.15, 0, 0);
 }
 
@@ -33,6 +33,7 @@
     -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-text-fill: #eee;
+    -fx-effect: dropshadow(two-pass-box, #111, 10, 0.15, 0, 0);
 }
 
 .tile {

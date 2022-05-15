@@ -31,7 +31,7 @@ class GameEvent : Event {
 }
 
 
-class InterfaceEvent : Event {
+open class InterfaceEvent : Event {
     constructor(eventType: EventType<out InterfaceEvent>) : super(eventType)
     constructor(
         @NamedArg("source") source: Any,
@@ -49,15 +49,39 @@ class InterfaceEvent : Event {
 
         val ANY = EventType<InterfaceEvent>(Event.ANY, "INTERFACE")
 
-        val START_TIMER = EventType(ANY, "START_TIMER")
+    }
+}
 
-        val STOP_TIMER = EventType(ANY, "STOP_TIMER")
+class TileEvent : InterfaceEvent {
+    constructor(eventType: EventType<out TileEvent>) : super(eventType)
+    constructor(
+        @NamedArg("source") source: Tile,
+        @NamedArg("target") target: EventTarget,
+        @NamedArg("eventType") eventType: EventType<out TileEvent>
+    ) : super(source, target, eventType)
+
+    @Suppress("UNCHECKED_CAST")
+    override fun getEventType(): EventType<out TileEvent> {
+        return super.getEventType() as EventType<out TileEvent>
+    }
+
+    companion object {
+        private const val serialVersionUID = 202205153L
+
+        val ANY = EventType<TileEvent>(InterfaceEvent.ANY, "TILE_EVENT")
 
         val TILE_OPENED = EventType(ANY, "TILE_OPENED")
 
         val TILE_MARKED = EventType(ANY, "TILE_MARKED")
 
         val TILE_UNMARKED = EventType(ANY, "TILE_UNMARKED")
+
+        val MINE_OPENED = EventType(ANY, "MINE_OPENED")
+
+        val MINE_MARKED = EventType(ANY, "MINE_MARKED")
+
+        val MINE_UNMARKED = EventType(ANY, "MINE_UNMARKED")
+
 
     }
 }

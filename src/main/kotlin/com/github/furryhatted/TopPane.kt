@@ -9,16 +9,16 @@ import javafx.util.Duration
 import org.slf4j.LoggerFactory
 
 class TopPane(
-    val tilesTotal: Int,
-    val minesTotal: Int
+    private val tilesTotal: Int,
+    private val minesTotal: Int
 ) : BorderPane() {
     private val mineLabel: Label = Label()
+
     private val timeLabel: Label = Label()
     private val tileLabel: Label = Label()
-    internal val timeline: Timeline = Timeline(KeyFrame(Duration(1000.0), { this.duration++ }))
+    private val timeline: Timeline = Timeline(KeyFrame(Duration(1000.0), { this.duration++ }))
         .apply { cycleCount = Animation.INDEFINITE }
-
-    internal var duration: Long = 0
+    private var duration: Long = 0
         set(value) {
             field = value
             timeLabel.text = "$STOPWATCH: $value"
@@ -29,11 +29,15 @@ class TopPane(
             field = value
             tileLabel.text = "$FIELD: $value/$tilesTotal"
         }
+
     internal var minesLeft: Int = 0
         set(value) {
             field = value
             mineLabel.text = "$BOMB: $value/$minesTotal"
         }
+
+    fun startTimer() = timeline.play()
+    fun stopTimer() = timeline.stop()
 
     init {
         this.styleClass.add("panel")

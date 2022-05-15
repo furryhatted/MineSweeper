@@ -1,10 +1,11 @@
 package com.github.furryhatted
 
-import com.github.furryhatted.InterfaceEvent.Companion.START_TIMER
-import com.github.furryhatted.InterfaceEvent.Companion.STOP_TIMER
-import com.github.furryhatted.InterfaceEvent.Companion.TILE_MARKED
-import com.github.furryhatted.InterfaceEvent.Companion.TILE_OPENED
-import com.github.furryhatted.InterfaceEvent.Companion.TILE_UNMARKED
+import com.github.furryhatted.TileEvent.Companion.MINE_MARKED
+import com.github.furryhatted.TileEvent.Companion.MINE_OPENED
+import com.github.furryhatted.TileEvent.Companion.MINE_UNMARKED
+import com.github.furryhatted.TileEvent.Companion.TILE_MARKED
+import com.github.furryhatted.TileEvent.Companion.TILE_OPENED
+import com.github.furryhatted.TileEvent.Companion.TILE_UNMARKED
 import javafx.event.EventHandler
 import javafx.scene.layout.VBox
 import org.slf4j.LoggerFactory
@@ -17,35 +18,55 @@ class RootPane(
 ) : EventHandler<InterfaceEvent>, VBox() {
     private val fieldPane = FieldPane(c, r, m)
     private val topPane = TopPane(c * r, m)
+    internal var score: Int = 0
+        private set(value) {
+            field = value
+            logger.debug("Score set: $field")
+        }
 
 
     init {
         this.stylesheets.add("default.css")
         this.styleClass.add("scene")
+        this.addEventHandler(GameEvent.ANY, eventHandler)
         fieldPane.addEventHandler(InterfaceEvent.ANY, this)
-        fieldPane.addEventHandler(GameEvent.ANY, eventHandler)
         children.add(topPane)
         children.add(fieldPane)
+        topPane.startTimer()
+    }
+
+    private fun finishGame(state: GameState) {
+        //fireEvent(InterfaceEvent(STOP_TIMER))
+        topPane.stopTimer()
+        when (state) {
+            GameState.WIN -> fireEvent(GameEvent(GameEvent.GAME_WON))
+            GameState.LOSS -> fireEvent(GameEvent(GameEvent.GAME_LOST))
+        }
     }
 
     override fun handle(event: InterfaceEvent) {
         logger.debug("Received ${event.eventType} from ${event.source}")
         when (event.eventType) {
-            STOP_TIMER -> topPane.timeline.stop()
-
-            START_TIMER -> topPane.timeline.play()
+            MINE_MARKED -> {
+                score += 10; topPane.tilesLeft--; topPane.minesLeft--
+            }
+            MINE_UNMARKED -> {
+                score -= 10; topPane.tilesLeft++; topPane.minesLeft++
+            }
+            TILE_MARKED -> {
+                score -= 10; topPane.tilesLeft--; topPane.minesLeft--
+            }
+            TILE_UNMARKED -> {
+                score += 10; topPane.tilesLeft++; topPane.minesLeft++
+            }
 
             TILE_OPENED -> topPane.tilesLeft--
 
-            TILE_MARKED -> {
-                topPane.tilesLeft--; topPane.minesLeft--
+            MINE_OPENED -> {
+                score /= 2; topPane.tilesLeft--; topPane.minesLeft--; finishGame(GameState.LOSS)
             }
-
-            TILE_UNMARKED -> {
-                topPane.tilesLeft++; topPane.minesLeft++
-            }
-
         }
+        if (fieldPane.isFinished) finishGame(GameState.WIN)
     }
 
 

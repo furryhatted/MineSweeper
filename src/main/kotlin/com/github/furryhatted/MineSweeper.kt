@@ -20,18 +20,9 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
         logger.debug("Launching application")
     }
 
-/*
-    private val root: VBox
-        get() = VBox().apply {
-            this.stylesheets.add("default.css")
-            this.styleClass.add("root")
-        }
-*/
-
-
     private fun createScene() {
-        val c = 10//Random.nextInt(5, 30)
-        val r = 10//Random.nextInt(5, 30)
+        val c = Random.nextInt(5, 30)
+        val r = Random.nextInt(5, 30)
         val m = Random.nextInt(c * r / 25, c * r / 5)
         mainStage.scene = Scene(RootPane(c, r, m, this))
         mainStage.sizeToScene()
@@ -52,10 +43,10 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
         logger.debug("Received ${event.eventType} from ${event.source}")
         when (event.eventType) {
             GameEvent.GAME_WON ->
-                Alert(INFORMATION, "Damn, you won... Your score is: ${(event.source as FieldPane).score}")
+                Alert(INFORMATION, "Damn, you won... Your score is: ${(event.source as RootPane).score}")
                     .apply { this.headerText = "SUCCESS!" }
             else ->
-                Alert(ERROR, "You lose, Gringo! Your score is: ${(event.source as FieldPane).score}")
+                Alert(ERROR, "You lose, Gringo! Your score is: ${(event.source as RootPane).score}")
                     .apply { this.headerText = "FAIL!" }
         }.apply {
             this.dialogPane.stylesheets.add("default.css")

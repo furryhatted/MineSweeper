@@ -1,6 +1,16 @@
 package com.github.furryhatted
 
+import com.github.furryhatted.TileEvent.Companion.MINE_MARKED
+import com.github.furryhatted.TileEvent.Companion.MINE_OPENED
+import com.github.furryhatted.TileEvent.Companion.MINE_UNMARKED
+import com.github.furryhatted.TileEvent.Companion.TILE_MARKED
+import com.github.furryhatted.TileEvent.Companion.TILE_OPENED
+import com.github.furryhatted.TileEvent.Companion.TILE_UNMARKED
+import javafx.event.EventHandler
+import javafx.scene.control.Alert
+import javafx.scene.control.Alert.AlertType.CONFIRMATION
 import javafx.scene.control.Button
+import javafx.scene.input.MouseButton
 import javafx.scene.paint.Color
 import org.slf4j.LoggerFactory
 
@@ -15,35 +25,62 @@ class Tile(
     internal val isMined
         get() = this.tooltip == -1
 
-    internal fun doOpen(): Boolean {
-        logger.trace("doOpen() invoked for $this")
-        if (isMarked || isDisabled) return false
-        this.isDisable = true
-        when (tooltip) {
-            -1 -> {
-                style = "-fx-background-color: #803333; -fx-text-fill: #eee;"
-                text = BOMB
-            }
-            in 1..8 -> {
-                textFill = Color.hsb(240.0 - tooltip * 30, 0.6, 0.95)
-                text = "$tooltip"
-            }
-            else -> text = null
-        }
-        return true
+    private fun showMineTooltip() {
+        style = "-fx-background-color: #803333; -fx-text-fill: #eee;"
+        text = BOMB
     }
 
-    internal fun doMark(): Boolean {
-        logger.trace("doMark() invoked for $this")
-        this.isMarked = !this.isMarked
-        this.text = if (isMarked) FLAG else null
+    private fun showProximityTooltip() {
+        textFill = Color.hsb(240.0 - tooltip * 30, 0.6, 0.95)
+        text = "$tooltip"
+    }
+
+    private fun showMarkedTooltip() {
+        text = FLAG
         textFill = Color.valueOf("#803333")
-        return isMarked == isMined
+    }
+
+    private fun showEmptyTooltip() {
+        text = null
+        textFill = null
+    }
+
+    internal fun doOpen() {
+        logger.trace("doOpen() invoked for $this")
+        if (isMarked || isDisabled) return
+        this.isDisable = true
+        when (tooltip) {
+            -1 -> showMineTooltip()
+            in 1..8 -> showProximityTooltip()
+            else -> showEmptyTooltip()
+        }
+        val event = if (isMined) TileEvent(MINE_OPENED) else TileEvent(TILE_OPENED)
+        logger.trace("Sending ${event.eventType} for $this")
+        fireEvent(event)
+    }
+
+    private fun doMark() {
+        logger.trace("doMark() invoked for $this")
+        isMarked = !isMarked
+        if (isMarked) showMarkedTooltip() else showEmptyTooltip()
+        val event = when (isMined) {
+            true -> if (isMarked) TileEvent(MINE_MARKED) else TileEvent(MINE_UNMARKED)
+            false -> if (isMarked) TileEvent(TILE_MARKED) else TileEvent(TILE_UNMARKED)
+        }
+        fireEvent(event)
     }
 
     init {
         this.setPrefSize(side, side)
         this.styleClass.add("tile")
+        this.onMouseClicked = EventHandler { event ->
+            when (event.button) {
+                MouseButton.PRIMARY -> doOpen()
+                MouseButton.SECONDARY -> doMark()
+                else -> Alert(CONFIRMATION, "Dude! Da fuk ur doing?!").showAndWait()
+            }
+        }
+
     }
 
     override fun toString(): String =
