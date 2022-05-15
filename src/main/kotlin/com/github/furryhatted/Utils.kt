@@ -8,3 +8,9 @@ fun adjacentTiles(index: Int, width: Int, size: Int): List<Int> {
         .filter { (it % width - col) in -1..1 }
         .minus(index)
 }
+
+const val BOMB: String = "\uD83D\uDCA3"
+const val FLAG: String = "\uD83D\uDEA9"
+const val SKULL: String = "\uD83D\uDD71"
+const val FIELD: String = "\uD83D\uDF96"
+const val STOPWATCH: String = "\u23F1"

@@ -15,31 +15,28 @@ class Tile(
     internal val isMined
         get() = this.tooltip == -1
 
-    private val label: String?
-        get() = when {
-            isMarked -> "\uD83D\uDEA9"
-            isMined -> "\uD83D\uDCA3"
-            tooltip in 1..8 -> "$tooltip"
-            else -> null
-        }
-
     internal fun doOpen(): Boolean {
-        logger.debug("doOpen() invoked for $this")
-        if (isDisabled) return false
-        if (isMarked) return false
-        this.text = label
-        when (tooltip) {
-            -1 -> style = "-fx-background-color: #803333; -fx-text-fill: #f3f3f3;"
-            in 1..8 -> textFill = Color.hsb(240.0 - tooltip * 30, 0.6, 0.95)
-        }
+        logger.trace("doOpen() invoked for $this")
+        if (isMarked || isDisabled) return false
         this.isDisable = true
+        when (tooltip) {
+            -1 -> {
+                style = "-fx-background-color: #803333; -fx-text-fill: #eee;"
+                text = BOMB
+            }
+            in 1..8 -> {
+                textFill = Color.hsb(240.0 - tooltip * 30, 0.6, 0.95)
+                text = "$tooltip"
+            }
+            else -> text = null
+        }
         return true
     }
 
     internal fun doMark(): Boolean {
-        logger.debug("doMark() invoked for $this")
+        logger.trace("doMark() invoked for $this")
         this.isMarked = !this.isMarked
-        this.text = if (isMarked) label else null
+        this.text = if (isMarked) FLAG else null
         textFill = Color.valueOf("#803333")
         return isMarked == isMined
     }
