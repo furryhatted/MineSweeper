@@ -1,18 +1,9 @@
 package com.github.furryhatted
 
-import javafx.beans.NamedArg
 import javafx.event.Event
-import javafx.event.EventTarget
 import javafx.event.EventType
 
-class GameEvent : Event {
-    constructor(eventType: EventType<out GameEvent>) : super(eventType)
-
-    constructor(
-        @NamedArg("source") source: Any,
-        @NamedArg("target") target: EventTarget,
-        @NamedArg("eventType") eventType: EventType<out GameEvent>
-    ) : super(source, target, eventType)
+class GameEvent(eventType: EventType<out GameEvent>) : Event(eventType) {
 
     @Suppress("UNCHECKED_CAST")
     override fun getEventType(): EventType<out GameEvent> {
@@ -31,13 +22,7 @@ class GameEvent : Event {
 }
 
 
-open class InterfaceEvent : Event {
-    constructor(eventType: EventType<out InterfaceEvent>) : super(eventType)
-    constructor(
-        @NamedArg("source") source: Any,
-        @NamedArg("target") target: EventTarget,
-        @NamedArg("eventType") eventType: EventType<out InterfaceEvent>
-    ) : super(source, target, eventType)
+open class InterfaceEvent(eventType: EventType<out InterfaceEvent>) : Event(eventType) {
 
     @Suppress("UNCHECKED_CAST")
     override fun getEventType(): EventType<out InterfaceEvent> {
@@ -52,14 +37,7 @@ open class InterfaceEvent : Event {
     }
 }
 
-class TileEvent : InterfaceEvent {
-    constructor(eventType: EventType<out TileEvent>) : super(eventType)
-    constructor(
-        @NamedArg("source") source: Tile,
-        @NamedArg("target") target: EventTarget,
-        @NamedArg("eventType") eventType: EventType<out TileEvent>
-    ) : super(source, target, eventType)
-
+class TileEvent(eventType: EventType<out TileEvent>) : InterfaceEvent(eventType) {
     @Suppress("UNCHECKED_CAST")
     override fun getEventType(): EventType<out TileEvent> {
         return super.getEventType() as EventType<out TileEvent>
@@ -69,6 +47,8 @@ class TileEvent : InterfaceEvent {
         private const val serialVersionUID = 202205153L
 
         val ANY = EventType<TileEvent>(InterfaceEvent.ANY, "TILE_EVENT")
+
+        val CHEAT_OPENED = EventType(ANY, "CHEAT_OPENED")
 
         val TILE_OPENED = EventType(ANY, "TILE_OPENED")
 

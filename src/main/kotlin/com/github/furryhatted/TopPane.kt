@@ -7,6 +7,7 @@ import javafx.scene.control.Label
 import javafx.scene.layout.BorderPane
 import javafx.util.Duration
 import org.slf4j.LoggerFactory
+import kotlin.time.Duration.Companion.seconds
 
 class TopPane(
     private val tilesTotal: Int,
@@ -21,7 +22,7 @@ class TopPane(
     private var duration: Long = 0
         set(value) {
             field = value
-            timeLabel.text = "$STOPWATCH: $value"
+            timeLabel.text = "$STOPWATCH: ${value.seconds}"
         }
 
     internal var tilesLeft: Int = 0

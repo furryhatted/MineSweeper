@@ -1,5 +1,6 @@
 package com.github.furryhatted
 
+import com.github.furryhatted.TileEvent.Companion.CHEAT_OPENED
 import com.github.furryhatted.TileEvent.Companion.TILE_OPENED
 import javafx.event.EventHandler
 import javafx.scene.layout.Pane
@@ -26,7 +27,7 @@ class FieldPane(
         if (tile.tooltip != 0) return
         neighbours[tile.id]
             .map { this.tiles[it] }
-            .filter { !(it.isMarked && it.isDisabled) }
+            .filter { !it.isMarked && !it.isDisabled }
             .forEach { it.doOpen() }
     }
 
@@ -51,6 +52,7 @@ class FieldPane(
         logger.debug("Received ${event.eventType} from ${event.source}")
         when (event.eventType) {
             TILE_OPENED -> open(event.source as Tile)
+            CHEAT_OPENED -> tiles.forEach { it.doOpen(false) }
         }
     }
 

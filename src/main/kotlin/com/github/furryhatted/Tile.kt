@@ -1,5 +1,6 @@
 package com.github.furryhatted
 
+import com.github.furryhatted.TileEvent.Companion.CHEAT_OPENED
 import com.github.furryhatted.TileEvent.Companion.MINE_MARKED
 import com.github.furryhatted.TileEvent.Companion.MINE_OPENED
 import com.github.furryhatted.TileEvent.Companion.MINE_UNMARKED
@@ -11,7 +12,7 @@ import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.CONFIRMATION
 import javafx.scene.control.Button
 import javafx.scene.input.MouseButton
-import javafx.scene.paint.Color
+import javafx.scene.paint.Color.*
 import org.slf4j.LoggerFactory
 
 class Tile(
@@ -31,13 +32,14 @@ class Tile(
     }
 
     private fun showProximityTooltip() {
-        textFill = Color.hsb(240.0 - tooltip * 30, 0.6, 0.95)
+        //textFill = hsb(240.0 - tooltip * 30, 0.70, 1.0)
+        textFill = colors[tooltip]
         text = "$tooltip"
     }
 
     private fun showMarkedTooltip() {
         text = FLAG
-        textFill = Color.valueOf("#803333")
+        textFill = colors[0]
     }
 
     private fun showEmptyTooltip() {
@@ -45,7 +47,7 @@ class Tile(
         textFill = null
     }
 
-    internal fun doOpen() {
+    internal fun doOpen(triggerOpenEvent: Boolean = true) {
         logger.trace("doOpen() invoked for $this")
         if (isMarked || isDisabled) return
         this.isDisable = true
@@ -56,7 +58,7 @@ class Tile(
         }
         val event = if (isMined) TileEvent(MINE_OPENED) else TileEvent(TILE_OPENED)
         logger.trace("Sending ${event.eventType} for $this")
-        fireEvent(event)
+        if (triggerOpenEvent) fireEvent(event)
     }
 
     private fun doMark() {
@@ -77,6 +79,8 @@ class Tile(
             when (event.button) {
                 MouseButton.PRIMARY -> doOpen()
                 MouseButton.SECONDARY -> doMark()
+                MouseButton.MIDDLE ->
+                    if (event.isShiftDown && event.isControlDown && event.isAltDown) fireEvent(TileEvent(CHEAT_OPENED))
                 else -> Alert(CONFIRMATION, "Dude! Da fuk ur doing?!").showAndWait()
             }
         }
@@ -87,7 +91,19 @@ class Tile(
         "${javaClass.simpleName}#$id[isMarked=$isMarked; isMined=$isMined; tooltip=$tooltip]"
 
     companion object {
-        const val DEFAULT_SIZE: Double = 50.0
+        const val DEFAULT_SIZE: Double = 49.0
         private val logger = LoggerFactory.getLogger(Tile::class.java)
+        private val colors = listOf(
+            valueOf("#803333"),
+            LIGHTSKYBLUE,
+            PALEGREEN,
+            GREENYELLOW,
+            KHAKI,
+            NAVAJOWHITE,
+            LIGHTSALMON,
+            SALMON,
+            TOMATO
+        )
+
     }
 }
