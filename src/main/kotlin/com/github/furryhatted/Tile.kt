@@ -7,7 +7,6 @@ import com.github.furryhatted.TileEvent.Companion.MINE_UNMARKED
 import com.github.furryhatted.TileEvent.Companion.TILE_MARKED
 import com.github.furryhatted.TileEvent.Companion.TILE_OPENED
 import com.github.furryhatted.TileEvent.Companion.TILE_UNMARKED
-import javafx.event.EventHandler
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.CONFIRMATION
 import javafx.scene.control.Button
@@ -16,7 +15,7 @@ import javafx.scene.paint.Color.*
 import org.slf4j.LoggerFactory
 
 class Tile(
-    val id: Int,
+    private val id: Pair<Int, Int>,
     side: Double = DEFAULT_SIZE,
 ) : Button() {
 
@@ -25,6 +24,8 @@ class Tile(
     internal var tooltip = 0
     internal val isMined
         get() = this.tooltip == -1
+    internal val canOpen
+        get() = !(this.isMarked || this.isDisabled)
 
     private fun showMineTooltip() {
         style = "-fx-background-color: #803333; -fx-text-fill: #eee;"
@@ -32,7 +33,6 @@ class Tile(
     }
 
     private fun showProximityTooltip() {
-        //textFill = hsb(240.0 - tooltip * 30, 0.70, 1.0)
         textFill = colors[tooltip]
         text = "$tooltip"
     }
@@ -47,18 +47,26 @@ class Tile(
         textFill = null
     }
 
-    internal fun doOpen(triggerOpenEvent: Boolean = true) {
-        logger.trace("doOpen() invoked for $this")
-        if (isMarked || isDisabled) return
+    internal fun doOpen(quietly: Boolean) {
+//        this.toFront()
+        logger.trace("doOpen($quietly) invoked for $this")
+        if (!canOpen) {
+//            shake(25.0)
+            return
+        }
         this.isDisable = true
         when (tooltip) {
             -1 -> showMineTooltip()
             in 1..8 -> showProximityTooltip()
             else -> showEmptyTooltip()
         }
-        val event = if (isMined) TileEvent(MINE_OPENED) else TileEvent(TILE_OPENED)
+        val event = when {
+            isMined -> TileEvent(MINE_OPENED)
+            else -> TileEvent(TILE_OPENED)
+        }
+        if (quietly) return
         logger.trace("Sending ${event.eventType} for $this")
-        if (triggerOpenEvent) fireEvent(event)
+        fireEvent(event)
     }
 
     private fun doMark() {
@@ -75,16 +83,24 @@ class Tile(
     init {
         this.setPrefSize(side, side)
         this.styleClass.add("tile")
-        this.onMouseClicked = EventHandler { event ->
+        this.setOnMouseClicked { event ->
             when (event.button) {
-                MouseButton.PRIMARY -> doOpen()
+                MouseButton.PRIMARY -> doOpen(false)
                 MouseButton.SECONDARY -> doMark()
                 MouseButton.MIDDLE ->
                     if (event.isShiftDown && event.isControlDown && event.isAltDown) fireEvent(TileEvent(CHEAT_OPENED))
                 else -> Alert(CONFIRMATION, "Dude! Da fuk ur doing?!").showAndWait()
             }
         }
-
+/*
+        this.setOnMouseEntered {
+            this.effect = Bloom(0.1)
+        }
+        this.setOnMouseExited {
+            this.effect = null
+        }
+*/
+        logger.debug("Created $this")
     }
 
     override fun toString(): String =
@@ -104,6 +120,5 @@ class Tile(
             SALMON,
             TOMATO
         )
-
     }
 }

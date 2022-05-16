@@ -36,7 +36,6 @@ class RootPane(
     }
 
     private fun finishGame(state: GameState) {
-        //fireEvent(InterfaceEvent(STOP_TIMER))
         topPane.stopTimer()
         when (state) {
             GameState.WIN -> fireEvent(GameEvent(GameEvent.GAME_WON))
@@ -60,10 +59,12 @@ class RootPane(
                 score += 10; topPane.tilesLeft++; topPane.minesLeft++
             }
 
-            TILE_OPENED -> topPane.tilesLeft--
+            TILE_OPENED -> {
+                topPane.tilesLeft--; score++
+            }
 
             MINE_OPENED -> {
-                score /= 2; topPane.tilesLeft--; topPane.minesLeft--; finishGame(GameState.LOSS)
+                score /= 2; topPane.tilesLeft--; topPane.minesLeft--; finishGame(GameState.LOSS); return
             }
         }
         if (fieldPane.isFinished) finishGame(GameState.WIN)

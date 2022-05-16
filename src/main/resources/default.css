@@ -2,6 +2,9 @@
     -fx-fill-width: false;
     -fx-fill-height: false;
 }
+.button {
+    -fx-shape: "M0,0h+1v+1h-1v-1z";
+}
 
 .scene {
     -fx-view-order: 5;
@@ -53,7 +56,7 @@
 
 .tile:hover {
     -fx-view-order: 0;
-    -fx-effect: dropshadow(two-pass-box, #33fd, 25, 0.15, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, #33fd, 20, 0.05, 0, 0);
     -fx-background-color: radial-gradient(center 50% 50%, radius 200%, reflect, #ccc, #33fd);
 }
 

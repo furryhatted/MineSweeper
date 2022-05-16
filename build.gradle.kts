@@ -25,7 +25,7 @@ dependencies {
 
 javafx {
     version = "18"
-    modules = listOf("javafx.controls")
+    modules = listOf("javafx.controls", "javafx.media")
 }
 
 tasks.test {
@@ -34,4 +34,8 @@ tasks.test {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "18"
+}
+
+tasks.withType<JavaExec> {
+    jvmArgs = listOf("-Xmx512M","-Xss2M")
 }

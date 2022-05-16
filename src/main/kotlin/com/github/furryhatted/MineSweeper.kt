@@ -21,8 +21,8 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
     }
 
     private fun createScene() {
-        val c = Random.nextInt(5, 30)
-        val r = Random.nextInt(5, 30)
+        val c = 15//Random.nextInt(5, 25)
+        val r = 15//Random.nextInt(5, 25)
         val m = Random.nextInt(c * r / 25, c * r / 5)
         mainStage.scene = Scene(RootPane(c, r, m, this))
         mainStage.sizeToScene()

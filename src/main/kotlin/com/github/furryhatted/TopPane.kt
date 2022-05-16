@@ -17,12 +17,15 @@ class TopPane(
 
     private val timeLabel: Label = Label()
     private val tileLabel: Label = Label()
-    private val timeline: Timeline = Timeline(KeyFrame(Duration(1000.0), { this.duration++ }))
+    private val timeline: Timeline = Timeline(KeyFrame(Duration(1000.0), {
+        this.duration++
+    }))
         .apply { cycleCount = Animation.INDEFINITE }
     private var duration: Long = 0
         set(value) {
             field = value
             timeLabel.text = "$STOPWATCH: ${value.seconds}"
+            shake(timeLabel,50.0, 3.0)
         }
 
     internal var tilesLeft: Int = 0
@@ -35,6 +38,7 @@ class TopPane(
         set(value) {
             field = value
             mineLabel.text = "$BOMB: $value/$minesTotal"
+            shake(mineLabel,50.0, 3.0)
         }
 
     fun startTimer() = timeline.play()
