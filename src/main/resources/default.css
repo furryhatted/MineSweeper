@@ -1,6 +1,7 @@
 .root {
     -fx-fill-width: false;
     -fx-fill-height: false;
+    -fx-view-order: 6;
 }
 .button {
     -fx-shape: "M0,0h+1v+1h-1v-1z";
@@ -12,7 +13,6 @@
     -fx-background-color: #444;
     -fx-padding: 2pc 4pc 4pc 4pc;
     -fx-spacing: 2pc;
-    -fx-cursor: hand;
 }
 
 .field {
@@ -23,9 +23,9 @@
 
 .panel {
     -fx-padding: 1pc;
-    -fx-pref-width: 26pc;
-    -fx-pref-height: 4pc;
-    -fx-border-width: 2px;
+    -fx-pref-width: 24pc;
+    -fx-pref-height: 3pc;
+    -fx-border-width: 3px;
     -fx-border-color: #eee;
     -fx-border-style: solid;
     -fx-background-color: #444;
@@ -36,7 +36,7 @@
     -fx-font-size: 22px;
     -fx-font-weight: bold;
     -fx-text-fill: #eee;
-    -fx-effect: dropshadow(two-pass-box, #111, 10, 0.15, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, #111, 15, 0.25, 0, 0);
 }
 
 .tile {
@@ -46,6 +46,7 @@
     -fx-border-color: #111;
     -fx-background-color: #ccc;
     -fx-focus-traversable: false;
+    -fx-effect: innershadow(three-pass-box, #8888, 25, 0.15, 0, 0);
 }
 
 .tile .text {
@@ -56,8 +57,9 @@
 
 .tile:hover {
     -fx-view-order: 0;
-    -fx-effect: dropshadow(three-pass-box, #33fd, 20, 0.05, 0, 0);
-    -fx-background-color: radial-gradient(center 50% 50%, radius 200%, reflect, #ccc, #33fd);
+    -fx-effect: dropshadow(three-pass-box, #33fc, 20, 0.05, 0, 0);
+    -fx-background-color: radial-gradient(center 50% 50%, radius 200%, #ccc, #33fc);
+    -fx-cursor: hand;
 }
 
 .tile:disabled {

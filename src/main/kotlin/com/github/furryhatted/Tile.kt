@@ -48,10 +48,10 @@ class Tile(
     }
 
     internal fun doOpen(quietly: Boolean) {
-//        this.toFront()
         logger.trace("doOpen($quietly) invoked for $this")
         if (!canOpen) {
-//            shake(25.0)
+            this.toFront()
+            shake(this, 50.0, 3.0)
             return
         }
         this.isDisable = true
@@ -92,15 +92,8 @@ class Tile(
                 else -> Alert(CONFIRMATION, "Dude! Da fuk ur doing?!").showAndWait()
             }
         }
-/*
-        this.setOnMouseEntered {
-            this.effect = Bloom(0.1)
-        }
-        this.setOnMouseExited {
-            this.effect = null
-        }
-*/
-        logger.debug("Created $this")
+        this.arm()
+        logger.trace("Created $this")
     }
 
     override fun toString(): String =

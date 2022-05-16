@@ -24,7 +24,7 @@ class TopPane(
     private var duration: Long = 0
         set(value) {
             field = value
-            timeLabel.text = "$STOPWATCH: ${value.seconds}"
+            timeLabel.text = "$ALARMCLOCK: ${value.seconds}"
             shake(timeLabel,50.0, 3.0)
         }
 
