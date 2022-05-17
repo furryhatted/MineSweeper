@@ -6,8 +6,10 @@ import com.github.furryhatted.TileEvent.Companion.MINE_UNMARKED
 import com.github.furryhatted.TileEvent.Companion.TILE_MARKED
 import com.github.furryhatted.TileEvent.Companion.TILE_OPENED
 import com.github.furryhatted.TileEvent.Companion.TILE_UNMARKED
+import javafx.animation.FadeTransition
 import javafx.event.EventHandler
 import javafx.scene.layout.VBox
+import javafx.util.Duration
 import org.slf4j.LoggerFactory
 
 class RootPane(
@@ -21,7 +23,7 @@ class RootPane(
     internal var score: Int = 0
         private set(value) {
             field = value
-            logger.debug("Score set: $field")
+            if (logger.isDebugEnabled) logger.debug("Score set: $field")
         }
 
 
@@ -37,14 +39,20 @@ class RootPane(
 
     private fun finishGame(state: GameState) {
         topPane.stopTimer()
-        when (state) {
-            GameState.WIN -> fireEvent(GameEvent(GameEvent.GAME_WON))
-            GameState.LOSS -> fireEvent(GameEvent(GameEvent.GAME_LOST))
+        FadeTransition(Duration(750.0), this).apply {
+            fromValue = 1.0
+            toValue = .5
+            cycleCount = 1
+            play()
+            when (state) {
+                GameState.WIN -> fireEvent(GameEvent(GameEvent.GAME_WON))
+                GameState.LOSS -> fireEvent(GameEvent(GameEvent.GAME_LOST))
+            }
         }
     }
 
     override fun handle(event: InterfaceEvent) {
-        logger.debug("Received ${event.eventType} from ${event.source}")
+        if (logger.isDebugEnabled) logger.debug("Received ${event.eventType} from ${event.source}")
         when (event.eventType) {
             MINE_MARKED -> {
                 score += 10; topPane.tilesLeft--; topPane.minesLeft--

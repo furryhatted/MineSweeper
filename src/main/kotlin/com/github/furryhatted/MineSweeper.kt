@@ -1,5 +1,6 @@
 package com.github.furryhatted
 
+import javafx.animation.FadeTransition
 import javafx.application.Application
 import javafx.application.Application.launch
 import javafx.event.EventHandler
@@ -7,24 +8,26 @@ import javafx.scene.Scene
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.ERROR
 import javafx.scene.control.Alert.AlertType.INFORMATION
+import javafx.scene.paint.Color
 import javafx.stage.Stage
 import javafx.stage.StageStyle
+import javafx.util.Duration
 import org.slf4j.LoggerFactory
 import kotlin.random.Random
 
 class MineSweeper : EventHandler<GameEvent>, Application() {
-    private val logger = LoggerFactory.getLogger(this::class.java)
     private lateinit var mainStage: Stage
 
     init {
-        logger.debug("Launching application")
+        if (logger.isDebugEnabled) logger.debug("Launching application")
     }
 
     private fun createScene() {
-        val c = 15//Random.nextInt(5, 25)
-        val r = 15//Random.nextInt(5, 25)
+        val c = Random.nextInt(5, 25)
+        val r = Random.nextInt(5, 25)
         val m = Random.nextInt(c * r / 25, c * r / 5)
         mainStage.scene = Scene(RootPane(c, r, m, this))
+        //mainStage.scene.fill = Color.BLACK
         mainStage.sizeToScene()
         mainStage.centerOnScreen()
         mainStage.show()
@@ -40,7 +43,7 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
     }
 
     override fun handle(event: GameEvent) {
-        logger.debug("Received ${event.eventType} from ${event.source}")
+        if (logger.isDebugEnabled) logger.debug("Received ${event.eventType} from ${event.source}")
         when (event.eventType) {
             GameEvent.GAME_WON ->
                 Alert(INFORMATION, "Damn, you won... Your score is: ${(event.source as RootPane).score}")
@@ -49,12 +52,25 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
                 Alert(ERROR, "You lose, Gringo! Your score is: ${(event.source as RootPane).score}")
                     .apply { this.headerText = "FAIL!" }
         }.apply {
+            this.initOwner(mainStage)
             this.dialogPane.stylesheets.add("default.css")
-            this.dialogPane.styleClass.add("dialog-pane")
-            this.initStyle(StageStyle.UNDECORATED)
-            showAndWait()
+            this.dialogPane.scene.fill = Color.TRANSPARENT
+            this.initStyle(StageStyle.TRANSPARENT)
+            this.setOnHidden { createScene() }
+            this.dialogPane.opacity = .0
+            this.show()
+            FadeTransition(Duration(750.0), this.dialogPane).apply {
+                fromValue = .0
+                toValue = 1.0
+                cycleCount = 1
+                play()
+            }
         }
-        createScene()
+
+    }
+    
+    companion object {
+        private val logger = LoggerFactory.getLogger(this::class.java)
     }
 }
 

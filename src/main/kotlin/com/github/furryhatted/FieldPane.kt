@@ -1,6 +1,7 @@
 package com.github.furryhatted
 
 import com.github.furryhatted.TileEvent.Companion.CHEAT_OPENED
+import com.github.furryhatted.TileEvent.Companion.MINE_OPENED
 import com.github.furryhatted.TileEvent.Companion.TILE_OPENED
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
@@ -63,7 +64,7 @@ class FieldPane(
 
     private fun buildOpenSequence(center: Tile, tileList: ArrayList<Tile> = ArrayList()): ArrayList<Tile> {
         if (tileList.contains(center)) return tileList
-        logger.trace("Building sequence: $center")
+        if (logger.isTraceEnabled) logger.trace("Building sequence: $center")
         tileList.add(center)
         if (center.tooltip != 0) return tileList
         adjacentTiles(center)
@@ -84,16 +85,17 @@ class FieldPane(
         this.tileMatrix.values.forEach { it.addEventHandler(TileEvent.ANY, this) }
         this.tileMatrix.values.shuffled().take(mines).forEach { it.tooltip = -1 }
         this.tileMatrix.values.filter { !it.isMined }.forEach { t -> t.tooltip = adjacentTiles(t).count { it.isMined } }
-        logger.debug("Created $this")
+        if (logger.isDebugEnabled) logger.debug("Created $this")
     }
 
     override fun toString(): String =
         "${javaClass.simpleName}[columns=$columns; rows=$rows; mines=$mines] $tileMatrix"
 
     override fun handle(event: TileEvent) {
-        logger.debug("Received ${event.eventType} from ${event.source}")
+        if (logger.isDebugEnabled) logger.debug("Received ${event.eventType} from ${event.source}")
         when (event.eventType) {
             TILE_OPENED -> open(event.source as Tile)
+            MINE_OPENED -> shake(this, 150.0, 5.0)
             CHEAT_OPENED -> tileMatrix.values.forEach { it.doOpen(false) }
         }
     }

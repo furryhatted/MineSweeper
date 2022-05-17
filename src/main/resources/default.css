@@ -3,6 +3,7 @@
     -fx-fill-height: false;
     -fx-view-order: 6;
 }
+
 .button {
     -fx-shape: "M0,0h+1v+1h-1v-1z";
 }
@@ -85,7 +86,6 @@
 }
 
 .dialog-pane .content.label .text {
-
     -fx-effect: dropshadow(two-pass-box, #333, 10, 0.15, 0, 0);
 }
 

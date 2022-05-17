@@ -25,11 +25,9 @@
 
     <logger name="ch.qos.logback" level="error"/>
 
-    <root level="trace">
+    <root level="info">
         <appender-ref ref="CONSOLE"/>
-        <!--
-                <appender-ref ref="FILE-ROLLING"/>
-        -->
+        <appender-ref ref="FILE-ROLLING"/>
     </root>
 
 </configuration>

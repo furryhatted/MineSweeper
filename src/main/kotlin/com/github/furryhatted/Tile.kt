@@ -7,11 +7,14 @@ import com.github.furryhatted.TileEvent.Companion.MINE_UNMARKED
 import com.github.furryhatted.TileEvent.Companion.TILE_MARKED
 import com.github.furryhatted.TileEvent.Companion.TILE_OPENED
 import com.github.furryhatted.TileEvent.Companion.TILE_UNMARKED
+import javafx.animation.Animation
+import javafx.animation.FadeTransition
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.CONFIRMATION
 import javafx.scene.control.Button
 import javafx.scene.input.MouseButton
 import javafx.scene.paint.Color.*
+import javafx.util.Duration
 import org.slf4j.LoggerFactory
 
 class Tile(
@@ -28,8 +31,16 @@ class Tile(
         get() = !(this.isMarked || this.isDisabled)
 
     private fun showMineTooltip() {
+        explode(this, 500.0).setOnFinished {
+            graphic = null
+            style = "-fx-background-color: #803333; -fx-text-fill: #eee;"
+            text = BOMB
+        }
+
+/*
         style = "-fx-background-color: #803333; -fx-text-fill: #eee;"
         text = BOMB
+*/
     }
 
     private fun showProximityTooltip() {
@@ -48,7 +59,7 @@ class Tile(
     }
 
     internal fun doOpen(quietly: Boolean) {
-        logger.trace("doOpen($quietly) invoked for $this")
+        if (logger.isTraceEnabled) logger.trace("doOpen($quietly) invoked for $this")
         if (!canOpen) {
             this.toFront()
             shake(this, 50.0, 3.0)
@@ -65,12 +76,12 @@ class Tile(
             else -> TileEvent(TILE_OPENED)
         }
         if (quietly) return
-        logger.trace("Sending ${event.eventType} for $this")
+        if (logger.isTraceEnabled) logger.trace("Sending ${event.eventType} for $this")
         fireEvent(event)
     }
 
     private fun doMark() {
-        logger.trace("doMark() invoked for $this")
+        if (logger.isTraceEnabled) logger.trace("doMark() invoked for $this")
         isMarked = !isMarked
         if (isMarked) showMarkedTooltip() else showEmptyTooltip()
         val event = when (isMined) {
@@ -93,7 +104,7 @@ class Tile(
             }
         }
         this.arm()
-        logger.trace("Created $this")
+        if (logger.isTraceEnabled) logger.trace("Created $this")
     }
 
     override fun toString(): String =
