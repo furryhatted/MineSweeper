@@ -6,7 +6,7 @@ import com.github.furryhatted.TileEvent.Companion.TILE_OPENED
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
 import javafx.event.EventHandler
-import javafx.scene.layout.Pane
+import javafx.scene.layout.AnchorPane
 import javafx.util.Duration
 import org.slf4j.LoggerFactory
 import kotlin.math.pow
@@ -15,7 +15,7 @@ class FieldPane(
     private val columns: Int = DEFAULT_FIELD_WIDTH,
     private val rows: Int = DEFAULT_FIELD_HEIGHT,
     private val mines: Int = DEFAULT_MINE_COUNT
-) : EventHandler<TileEvent>, Pane() {
+) : EventHandler<TileEvent>, AnchorPane() {
     private val tileMatrix: Map<Pair<Int, Int>, Tile>
 
     internal val isFinished: Boolean
@@ -34,13 +34,6 @@ class FieldPane(
             .map { it.value }
     }
 
-    private fun openGroup(group: List<Tile>) {
-        group.forEach {
-            fireEvent(TileEvent(TILE_OPENED))
-            it.doOpen(true)
-        }
-    }
-
     private fun open(center: Tile) {
         val (x0, y0) = getPosition(center)
         val distance = { t1: Tile ->
@@ -57,7 +50,12 @@ class FieldPane(
                 .sortedByDescending { it.key }
                 .map { it.value }
         val iterator = openRoute.iterator()
-        val animation = Timeline(KeyFrame(Duration(7.0), { if (iterator.hasNext()) openGroup(iterator.next()) }))
+        val animation = Timeline(KeyFrame(Duration(7.0), {
+            if (iterator.hasNext()) iterator.next().forEach {
+                fireEvent(TileEvent(TILE_OPENED))
+                it.doOpen(true)
+            }
+        }))
         animation.cycleCount = openRoute.size
         animation.play()
     }
@@ -76,9 +74,10 @@ class FieldPane(
     init {
         this.styleClass.add("field")
         this.tileMatrix = (0 until rows).map { r -> (0 until columns).map { c -> r to c } }.flatten().associateWith {
-            Tile(it.first to it.second).apply {
-                this.layoutX = it.second * Tile.DEFAULT_SIZE
-                this.layoutY = it.first * Tile.DEFAULT_SIZE
+            Tile().apply {
+                this.layoutX = it.second * DEFAULT_TILE_SIZE
+                this.layoutY = it.first * DEFAULT_TILE_SIZE
+                this.setPrefSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
             }
         }
         this.children.addAll(this.tileMatrix.values)
@@ -95,12 +94,13 @@ class FieldPane(
         if (logger.isDebugEnabled) logger.debug("Received ${event.eventType} from ${event.source}")
         when (event.eventType) {
             TILE_OPENED -> open(event.source as Tile)
-            MINE_OPENED -> shake(this, 150.0, 5.0)
+            MINE_OPENED -> shake(this, 300.0, 5.0)
             CHEAT_OPENED -> tileMatrix.values.forEach { it.doOpen(false) }
         }
     }
 
     companion object {
+        private const val DEFAULT_TILE_SIZE: Double = 49.0
         private const val DEFAULT_FIELD_WIDTH: Int = 10
         private const val DEFAULT_FIELD_HEIGHT: Int = 10
         private const val DEFAULT_MINE_COUNT: Int = 10

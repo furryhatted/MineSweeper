@@ -9,10 +9,6 @@ plugins {
 group = "com.github.furryhatted"
 version = "1.0-SNAPSHOT"
 
-application {
-    mainClass.set("com.github.furryhatted.MineSweeper")
-}
-
 repositories {
     mavenCentral()
 }
@@ -25,7 +21,11 @@ dependencies {
 
 javafx {
     version = "18"
-    modules = listOf("javafx.controls", "javafx.media")
+    modules = listOf("javafx.controls", "javafx.graphics", "javafx.media")
+}
+
+application {
+    mainClass.set("com.github.furryhatted.MineSweeper")
 }
 
 tasks.test {
@@ -33,9 +33,16 @@ tasks.test {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "18"
+    kotlinOptions.jvmTarget = "11"
 }
 
 tasks.withType<JavaExec> {
-    jvmArgs = listOf("-Xmx512M","-Xss2M")
+    jvmArgs = listOf("-Xmx512M", "-Xss2M")
+}
+
+
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "com.github.furryhatted.MineSweeper"
+    }
 }

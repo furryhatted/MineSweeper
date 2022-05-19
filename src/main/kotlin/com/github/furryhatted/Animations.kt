@@ -16,7 +16,7 @@ fun swingAnimation(duration: Double, maxSwing: Double): TranslateTransition {
 }
 
 fun shake(node: Node, duration: Double, magnitude: Double): Animation {
-    val cycles = Random.nextInt(4, 6)
+    val cycles = Random.nextInt(6, 12)
     val animation = SequentialTransition(node)
     repeat(cycles) { animation.children.add(swingAnimation(duration / (cycles * 2), magnitude)) }
     animation.play()

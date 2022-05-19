@@ -2,21 +2,24 @@ package com.github.furryhatted
 
 import javafx.animation.FadeTransition
 import javafx.application.Application
-import javafx.application.Application.launch
 import javafx.event.EventHandler
 import javafx.scene.Scene
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.ERROR
 import javafx.scene.control.Alert.AlertType.INFORMATION
+import javafx.scene.media.Media
+import javafx.scene.media.MediaPlayer
 import javafx.scene.paint.Color
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import javafx.util.Duration
 import org.slf4j.LoggerFactory
+import java.io.File
 import kotlin.random.Random
 
 class MineSweeper : EventHandler<GameEvent>, Application() {
     private lateinit var mainStage: Stage
+
 
     init {
         if (logger.isDebugEnabled) logger.debug("Launching application")
@@ -27,7 +30,8 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
         val r = Random.nextInt(5, 25)
         val m = Random.nextInt(c * r / 25, c * r / 5)
         mainStage.scene = Scene(RootPane(c, r, m, this))
-        //mainStage.scene.fill = Color.BLACK
+        //FIXME: Remove this or leave it - changes fade color for root pane
+//        mainStage.scene.fill = Color.BLACK
         mainStage.sizeToScene()
         mainStage.centerOnScreen()
         mainStage.show()
@@ -42,15 +46,18 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
         createScene()
     }
 
+    //FIXME: Refactor this spaghetti code
     override fun handle(event: GameEvent) {
         if (logger.isDebugEnabled) logger.debug("Received ${event.eventType} from ${event.source}")
         when (event.eventType) {
-            GameEvent.GAME_WON ->
+            GameEvent.GAME_WON -> {
                 Alert(INFORMATION, "Damn, you won... Your score is: ${(event.source as RootPane).score}")
                     .apply { this.headerText = "SUCCESS!" }
-            else ->
+            }
+            else -> {
                 Alert(ERROR, "You lose, Gringo! Your score is: ${(event.source as RootPane).score}")
                     .apply { this.headerText = "FAIL!" }
+            }
         }.apply {
             this.initOwner(mainStage)
             this.dialogPane.stylesheets.add("default.css")
@@ -66,16 +73,16 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
                 play()
             }
         }
-
     }
-    
+
     companion object {
-        private val logger = LoggerFactory.getLogger(this::class.java)
+        private val logger = LoggerFactory.getLogger(MineSweeper::class.java)
+
+        /*
+
+            fun main(args: Array<String>) {
+                launch(*args)
+            }
+    */
     }
 }
-
-fun main(args: Array<String>) {
-    launch(*args)
-}
-
-

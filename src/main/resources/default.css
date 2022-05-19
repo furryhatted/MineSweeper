@@ -24,7 +24,7 @@
 
 .panel {
     -fx-padding: 1pc;
-    -fx-pref-width: 24pc;
+    -fx-pref-width: 26pc;
     -fx-pref-height: 3pc;
     -fx-border-width: 3px;
     -fx-border-color: #eee;
@@ -40,7 +40,7 @@
     -fx-effect: dropshadow(three-pass-box, #111, 15, 0.25, 0, 0);
 }
 
-.tile {
+.button {
     -fx-view-order: 1;
     -fx-border-width: 1px;
     -fx-border-style: solid;
@@ -50,20 +50,20 @@
     -fx-effect: innershadow(three-pass-box, #8888, 25, 0.15, 0, 0);
 }
 
-.tile .text {
+.button .text {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-effect: dropshadow(three-pass-box, #111, 10, 0.15, 0, 0);
 }
 
-.tile:hover {
+.button:hover {
     -fx-view-order: 0;
     -fx-effect: dropshadow(three-pass-box, #33fc, 20, 0.05, 0, 0);
     -fx-background-color: radial-gradient(center 50% 50%, radius 200%, #ccc, #33fc);
     -fx-cursor: hand;
 }
 
-.tile:disabled {
+.button:disabled {
     -fx-view-order: 3;
     -fx-background-color: #555;
     -fx-effect: innershadow(three-pass-box, #111, 25, 0.15, 0, 0);
