@@ -1,14 +1,13 @@
 .root {
     -fx-fill-width: false;
     -fx-fill-height: false;
-    -fx-view-order: 6;
 }
 
 .button {
     -fx-shape: "M0,0h+1v+1h-1v-1z";
 }
 
-.scene {
+#root {
     -fx-view-order: 5;
     -fx-alignment: center;
     -fx-background-color: #444;
@@ -16,16 +15,16 @@
     -fx-spacing: 2pc;
 }
 
-.field {
+#field {
     -fx-view-order: 4;
     -fx-background-color: #555;
     -fx-effect: dropshadow(two-pass-box, #111, 50, 0.15, 0, 0);
 }
 
-.panel {
+#heading {
     -fx-padding: 1pc;
-    -fx-pref-width: 26pc;
-    -fx-pref-height: 3pc;
+    -fx-spacing: 1pc;
+    -fx-min-width: 27pc;
     -fx-border-width: 3px;
     -fx-border-color: #eee;
     -fx-border-style: solid;
@@ -33,14 +32,14 @@
     -fx-effect: dropshadow(two-pass-box, #111, 50, 0.15, 0, 0);
 }
 
-.panel .label {
+#heading .label {
     -fx-font-size: 22px;
     -fx-font-weight: bold;
     -fx-text-fill: #eee;
     -fx-effect: dropshadow(three-pass-box, #111, 15, 0.25, 0, 0);
 }
 
-.button {
+#tile {
     -fx-view-order: 1;
     -fx-border-width: 1px;
     -fx-border-style: solid;
@@ -50,20 +49,20 @@
     -fx-effect: innershadow(three-pass-box, #8888, 25, 0.15, 0, 0);
 }
 
-.button .text {
+#tile .text {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-effect: dropshadow(three-pass-box, #111, 10, 0.15, 0, 0);
 }
 
-.button:hover {
+#tile:hover {
     -fx-view-order: 0;
     -fx-effect: dropshadow(three-pass-box, #33fc, 20, 0.05, 0, 0);
     -fx-background-color: radial-gradient(center 50% 50%, radius 200%, #ccc, #33fc);
     -fx-cursor: hand;
 }
 
-.button:disabled {
+#tile:disabled {
     -fx-view-order: 3;
     -fx-background-color: #555;
     -fx-effect: innershadow(three-pass-box, #111, 25, 0.15, 0, 0);

@@ -7,29 +7,34 @@ import javafx.scene.Scene
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.ERROR
 import javafx.scene.control.Alert.AlertType.INFORMATION
-import javafx.scene.media.Media
-import javafx.scene.media.MediaPlayer
 import javafx.scene.paint.Color
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import javafx.util.Duration
 import org.slf4j.LoggerFactory
-import java.io.File
 import kotlin.random.Random
 
 class MineSweeper : EventHandler<GameEvent>, Application() {
     private lateinit var mainStage: Stage
+    private lateinit var stylesheets: String
 
+    private fun createRoot(
+        columns: Int = Random.nextInt(5, 25),
+        rows: Int = Random.nextInt(5, 25),
+        mines: Int = Random.nextInt(columns * rows / 25, columns * rows / 5),
+    ): RootPane = RootPane(columns, rows, mines)
+        .also {
+            it.addEventHandler(GameEvent.ANY, this)
+            it.stylesheets.add(stylesheets)
+        }
 
     init {
         if (logger.isDebugEnabled) logger.debug("Launching application")
     }
 
     private fun createScene() {
-        val c = Random.nextInt(5, 25)
-        val r = Random.nextInt(5, 25)
-        val m = Random.nextInt(c * r / 25, c * r / 5)
-        mainStage.scene = Scene(RootPane(c, r, m, this))
+        stylesheets = this.parameters.named["stylesheets"] ?: "default.css"
+        mainStage.scene = Scene(createRoot())
         //FIXME: Remove this or leave it - changes fade color for root pane
 //        mainStage.scene.fill = Color.BLACK
         mainStage.sizeToScene()
@@ -66,7 +71,7 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
             this.setOnHidden { createScene() }
             this.dialogPane.opacity = .0
             this.show()
-            FadeTransition(Duration(750.0), this.dialogPane).apply {
+            FadeTransition(Duration.seconds(.3), this.dialogPane).apply {
                 fromValue = .0
                 toValue = 1.0
                 cycleCount = 1

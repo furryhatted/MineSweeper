@@ -1,7 +1,6 @@
 package com.github.furryhatted
 
-import com.github.furryhatted.TileEvent.Companion.CHEAT_OPENED
-import com.github.furryhatted.TileEvent.Companion.MINE_OPENED
+import com.github.furryhatted.TileEvent.Companion.TILE_CHEAT
 import com.github.furryhatted.TileEvent.Companion.TILE_OPENED
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
@@ -26,12 +25,12 @@ class FieldPane(
     private fun adjacentTiles(center: Tile): List<Tile> {
         val pos = getPosition(center)
         return tileMatrix.entries
-            .filter {
-                (it.key != pos) &&
-                        (it.key.first in pos.first - 1..pos.first + 1)
-                        && (it.key.second in pos.second - 1..pos.second + 1)
-            }
+            .asSequence()
+            .filter { it.key != pos }
+            .filter { it.key.first in pos.first - 1..pos.first + 1 }
+            .filter { it.key.second in pos.second - 1..pos.second + 1 }
             .map { it.value }
+            .toList()
     }
 
     private fun open(center: Tile) {
@@ -52,7 +51,7 @@ class FieldPane(
         val iterator = openRoute.iterator()
         val animation = Timeline(KeyFrame(Duration(7.0), {
             if (iterator.hasNext()) iterator.next().forEach {
-                fireEvent(TileEvent(TILE_OPENED))
+                fireEvent(TileEvent(TILE_OPENED, it))
                 it.doOpen(true)
             }
         }))
@@ -62,7 +61,7 @@ class FieldPane(
 
     private fun buildOpenSequence(center: Tile, tileList: ArrayList<Tile> = ArrayList()): ArrayList<Tile> {
         if (tileList.contains(center)) return tileList
-        if (logger.isTraceEnabled) logger.trace("Building sequence: $center")
+        if (logger.isTraceEnabled) logger.trace("Building sequence for $center")
         tileList.add(center)
         if (center.tooltip != 0) return tileList
         adjacentTiles(center)
@@ -71,33 +70,47 @@ class FieldPane(
         return tileList
     }
 
+    private fun reveal(tiles: Collection<Tile> = tileMatrix.values) {
+        tiles.forEach { it.showTooltip() }
+    }
+
     init {
-        this.styleClass.add("field")
-        this.tileMatrix = (0 until rows).map { r -> (0 until columns).map { c -> r to c } }.flatten().associateWith {
-            Tile().apply {
-                this.layoutX = it.second * DEFAULT_TILE_SIZE
-                this.layoutY = it.first * DEFAULT_TILE_SIZE
-                this.setPrefSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
-            }
-        }
-        this.children.addAll(this.tileMatrix.values)
-        this.tileMatrix.values.forEach { it.addEventHandler(TileEvent.ANY, this) }
-        this.tileMatrix.values.shuffled().take(mines).forEach { it.tooltip = -1 }
+        this.id = "field"
+        this.tileMatrix =
+            (0 until rows).map { r -> (0 until columns).map { c -> r to c } }.flatten()
+                .zip((0 until columns * rows).map { if (it < mines) Tile(true) else Tile(false) }.shuffled())
+                .onEach {
+                    it.second.layoutX = it.first.second * DEFAULT_TILE_SIZE
+                    it.second.layoutY = it.first.first * DEFAULT_TILE_SIZE
+                    it.second.setPrefSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
+                    it.second.setMaxSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
+                    it.second.setMinSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
+                    it.second.addEventHandler(TileEvent.ANY, this)
+                }.toMap()
         this.tileMatrix.values.filter { !it.isMined }.forEach { t -> t.tooltip = adjacentTiles(t).count { it.isMined } }
-        if (logger.isDebugEnabled) logger.debug("Created $this")
+        this.children.addAll(this.tileMatrix.values)
+        if (logger.isDebugEnabled) logger.debug("Created $this {${this.tileMatrix}}")
     }
 
     override fun toString(): String =
-        "${javaClass.simpleName}[columns=$columns; rows=$rows; mines=$mines] $tileMatrix"
+        StringBuilder("FieldPane@${hashCode()}[").apply {
+            this.append("columns=$columns")
+            this.append(", rows=$rows")
+            this.append(", mines=$mines")
+            if (isFinished) this.append(", isFinished")
+        }.append("]").toString()
+
 
     override fun handle(event: TileEvent) {
-        if (logger.isDebugEnabled) logger.debug("Received ${event.eventType} from ${event.source}")
+        if (logger.isDebugEnabled) logger.debug("Received $event")
         when (event.eventType) {
-            TILE_OPENED -> open(event.source as Tile)
-            MINE_OPENED -> shake(this, 300.0, 5.0)
-            CHEAT_OPENED -> tileMatrix.values.forEach { it.doOpen(false) }
+            TILE_OPENED ->
+                if (event.isMined) shake(this, 15.0, 15, 700.0)
+                else open(event.source as Tile)
+            TILE_CHEAT -> reveal()
         }
     }
+
 
     companion object {
         private const val DEFAULT_TILE_SIZE: Double = 49.0

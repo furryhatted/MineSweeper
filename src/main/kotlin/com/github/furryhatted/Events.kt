@@ -1,6 +1,8 @@
 package com.github.furryhatted
 
+import javafx.beans.NamedArg
 import javafx.event.Event
+import javafx.event.EventTarget
 import javafx.event.EventType
 
 class GameEvent(eventType: EventType<out GameEvent>) : Event(eventType) {
@@ -22,46 +24,71 @@ class GameEvent(eventType: EventType<out GameEvent>) : Event(eventType) {
 }
 
 
-open class InterfaceEvent(eventType: EventType<out InterfaceEvent>) : Event(eventType) {
-
+open class InterfaceEvent(
+    @NamedArg("source") source: Any?,
+    @NamedArg("target") target: EventTarget?,
+    @NamedArg("eventType") eventType: EventType<out InterfaceEvent>
+) : Event(source, target, eventType) {
     @Suppress("UNCHECKED_CAST")
     override fun getEventType(): EventType<out InterfaceEvent> {
         return super.getEventType() as EventType<out InterfaceEvent>
     }
 
+    override fun toString(): String =
+        "${this.javaClass.simpleName}@${this.hashCode()}[eventType=${this.eventType}, source=${this.source}, target=${this.target}]"
+
     companion object {
         private const val serialVersionUID = 202205151L
 
-        val ANY = EventType<InterfaceEvent>(Event.ANY, "INTERFACE")
+        val ANY = EventType<InterfaceEvent>(Event.ANY, "INTERFACE_EVENT")
 
     }
 }
 
-class TileEvent(eventType: EventType<out TileEvent>) : InterfaceEvent(eventType) {
+class TileEvent(
+    @NamedArg("source") source: Any?,
+    @NamedArg("target") target: EventTarget?,
+    @NamedArg("eventType") eventType: EventType<out TileEvent>,
+    @NamedArg("isMarked") val isMarked: Boolean,
+    @NamedArg("isMarked") val isMined: Boolean
+) : InterfaceEvent(source, target, eventType) {
+    constructor(
+        @NamedArg("eventType") eventType: EventType<out TileEvent>,
+        tile: Tile
+    ) : this(
+        null,
+        null,
+        eventType,
+        tile.isMarked,
+        tile.isMined
+    )
+
     @Suppress("UNCHECKED_CAST")
     override fun getEventType(): EventType<out TileEvent> {
         return super.getEventType() as EventType<out TileEvent>
     }
+
+    override fun toString(): String =
+        StringBuilder("TileEvent[").apply {
+            this.append("source=$source")
+            this.append(", target=$target")
+            this.append(", eventType=$eventType")
+            this.append(", consumed=$isConsumed")
+            if (isMarked) this.append(", isMarked")
+            if (isMined) this.append(", isMined")
+        }.append("]").toString()
 
     companion object {
         private const val serialVersionUID = 202205153L
 
         val ANY = EventType<TileEvent>(InterfaceEvent.ANY, "TILE_EVENT")
 
-        val CHEAT_OPENED = EventType(ANY, "CHEAT_OPENED")
+        val TILE_CHEAT = EventType(ANY, "TILE_CHEAT")
 
         val TILE_OPENED = EventType(ANY, "TILE_OPENED")
 
         val TILE_MARKED = EventType(ANY, "TILE_MARKED")
 
         val TILE_UNMARKED = EventType(ANY, "TILE_UNMARKED")
-
-        val MINE_OPENED = EventType(ANY, "MINE_OPENED")
-
-        val MINE_MARKED = EventType(ANY, "MINE_MARKED")
-
-        val MINE_UNMARKED = EventType(ANY, "MINE_UNMARKED")
-
-
     }
 }

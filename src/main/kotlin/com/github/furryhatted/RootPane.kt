@@ -1,25 +1,34 @@
 package com.github.furryhatted
 
-import com.github.furryhatted.TileEvent.Companion.MINE_MARKED
-import com.github.furryhatted.TileEvent.Companion.MINE_OPENED
-import com.github.furryhatted.TileEvent.Companion.MINE_UNMARKED
 import com.github.furryhatted.TileEvent.Companion.TILE_MARKED
 import com.github.furryhatted.TileEvent.Companion.TILE_OPENED
 import com.github.furryhatted.TileEvent.Companion.TILE_UNMARKED
+import javafx.animation.Animation
 import javafx.animation.FadeTransition
+import javafx.animation.KeyFrame
+import javafx.animation.Timeline
 import javafx.event.EventHandler
 import javafx.scene.layout.VBox
 import javafx.util.Duration
 import org.slf4j.LoggerFactory
 
+
 class RootPane(
     c: Int,
     r: Int,
-    m: Int,
-    eventHandler: EventHandler<GameEvent>
-) : EventHandler<InterfaceEvent>, VBox() {
-    private val fieldPane = FieldPane(c, r, m)
-    private val topPane = TopPane(c * r, m)
+    m: Int
+) : EventHandler<TileEvent>, VBox() {
+
+    private var duration: Int = 0
+    private var movesLeft: Int = c * r
+    private var minesLeft: Int = m
+
+
+    private val heading: HeadingPane
+    private val field: FieldPane
+    private val timer: Timeline
+
+
     internal var score: Int = 0
         private set(value) {
             field = value
@@ -28,56 +37,60 @@ class RootPane(
 
 
     init {
-        this.stylesheets.add("default.css")
-        this.styleClass.add("scene")
-        this.addEventHandler(GameEvent.ANY, eventHandler)
-        fieldPane.addEventHandler(InterfaceEvent.ANY, this)
-        children.add(topPane)
-        children.add(fieldPane)
-        topPane.startTimer()
+        this.id = "root"
+        this.field = FieldPane(c, r, m)
+        this.heading = HeadingPane(c * r, m, 0)
+        this.timer = Timeline(KeyFrame(Duration(1000.0), { heading.setTime(++duration); tick.play() })).also {
+            it.cycleCount = Animation.INDEFINITE
+        }
+
+        field.addEventHandler(TileEvent.ANY, this)
+        children.add(heading)
+        children.add(field)
+        timer.play()
     }
 
     private fun finishGame(state: GameState) {
-        topPane.stopTimer()
-        FadeTransition(Duration(750.0), this).apply {
+        timer.stop()
+        when (state) {
+            GameState.WIN -> fireEvent(GameEvent(GameEvent.GAME_WON))
+            GameState.LOSS -> fireEvent(GameEvent(GameEvent.GAME_LOST))
+        }
+        FadeTransition(Duration.seconds(1.2), this).apply {
             fromValue = 1.0
-            toValue = .5
-            cycleCount = 1
+            toValue = .4
             play()
-            when (state) {
-                GameState.WIN -> fireEvent(GameEvent(GameEvent.GAME_WON))
-                GameState.LOSS -> fireEvent(GameEvent(GameEvent.GAME_LOST))
-            }
         }
     }
 
-    override fun handle(event: InterfaceEvent) {
-        if (logger.isDebugEnabled) logger.debug("Received ${event.eventType} from ${event.source}")
+    override fun handle(event: TileEvent) {
+        if (logger.isDebugEnabled) logger.debug("Received $event")
         when (event.eventType) {
-            MINE_MARKED -> {
-                score += 10; topPane.tilesLeft--; topPane.minesLeft--
-            }
-            MINE_UNMARKED -> {
-                score -= 10; topPane.tilesLeft++; topPane.minesLeft++
-            }
             TILE_MARKED -> {
-                score -= 10; topPane.tilesLeft--; topPane.minesLeft--
+                if (event.isMined) score += 10 else score -= 10
+                heading.setMines(--minesLeft)
+                heading.setMoves(--movesLeft)
             }
             TILE_UNMARKED -> {
-                score += 10; topPane.tilesLeft++; topPane.minesLeft++
+                if (event.isMined) score -= 10 else score += 10
+                heading.setMines(++minesLeft)
+                heading.setMoves(++movesLeft)
             }
-
             TILE_OPENED -> {
-                topPane.tilesLeft--; score++
-            }
-
-            MINE_OPENED -> {
-                score /= 2; topPane.tilesLeft--; topPane.minesLeft--; finishGame(GameState.LOSS); return
+                heading.setMoves(--movesLeft)
+                if (!event.isMined) score++
+                else {
+                    score /= 2
+                    heading.setMines(--minesLeft)
+                    finishGame(GameState.LOSS)
+                    return
+                }
             }
         }
-        if (fieldPane.isFinished) finishGame(GameState.WIN)
+        if (field.isFinished) finishGame(GameState.WIN)
     }
 
+    override fun toString(): String = "${this.javaClass.simpleName}@${this.hashCode()}"
 
     companion object {
         private val logger = LoggerFactory.getLogger(RootPane::class.java)
