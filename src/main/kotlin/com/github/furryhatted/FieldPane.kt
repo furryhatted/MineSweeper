@@ -26,9 +26,9 @@ class FieldPane(
         val pos = getPosition(center)
         return tileMatrix.entries
             .asSequence()
-            .filter { it.key != pos }
             .filter { it.key.first in pos.first - 1..pos.first + 1 }
             .filter { it.key.second in pos.second - 1..pos.second + 1 }
+            .filter { it.key != pos }
             .map { it.value }
             .toList()
     }
@@ -37,8 +37,7 @@ class FieldPane(
         val (x0, y0) = getPosition(center)
         val distance = { t1: Tile ->
             val (x1, y1) = getPosition(t1)
-            val d1 = ((x0 - x1).toDouble().pow(2) + (y0 - y1).toDouble().pow(2)).pow(-2)
-            d1
+            ((x0 - x1).pow(2) + (y0 - y1).pow(2)).pow(-2)
         }
         val openRoute =
             buildOpenSequence(center)

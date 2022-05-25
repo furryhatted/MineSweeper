@@ -1,10 +1,14 @@
 package com.github.furryhatted
 
 import javafx.animation.*
+import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.Node
 import javafx.scene.control.ContentDisplay.GRAPHIC_ONLY
 import javafx.scene.control.ContentDisplay.TEXT_ONLY
+import javafx.scene.effect.BlurType
+import javafx.scene.effect.DropShadow
 import javafx.scene.image.ImageView
+import javafx.scene.paint.Color
 import javafx.util.Duration
 import kotlin.random.Random
 
@@ -27,7 +31,7 @@ fun shake(node: Node, magnitude: Double, cycles: Int = Random.nextInt(6, 12), du
 fun explode(tile: Tile): Animation {
     val f1 = KeyFrame(Duration.seconds(.0), {
         tile.hideTooltip()
-        with(ImageView("boom.gif")) {
+        with(ImageView(MineSweeper::class.java.getResource("/images/boom.gif")?.toExternalForm())) {
             this.fitWidth = tile.width
             this.fitHeight = tile.height
             tile.graphic = this
@@ -40,4 +44,24 @@ fun explode(tile: Tile): Animation {
         tile.showTooltip()
     })
     return Timeline(f1, f2)
+}
+
+fun highlight(tile: Tile): Animation {
+    val radius = SimpleObjectProperty(.0)
+    val startValue = KeyValue(radius, .0)
+    val endValue = KeyValue(radius, 25.0)
+    val startFrame = KeyFrame(Duration.ZERO, startValue)
+    val endFrame = KeyFrame(Duration.seconds(.5), endValue)
+    val timeLine = Timeline(startFrame, endFrame)
+    radius.addListener { _, _, value ->
+        tile.viewOrder = 0.0
+        tile.style = "-fx-background-color: radial-gradient(center 50% 50%, radius 200%, #ccc, #33f);"
+        tile.effect = DropShadow(BlurType.THREE_PASS_BOX, Color.valueOf("#33fc"), value, .15, .0, .0)
+    }
+    timeLine.isAutoReverse = true
+    timeLine.cycleCount = Animation.INDEFINITE
+    timeLine.setOnFinished {
+        tile.effect = null
+    }
+    return timeLine
 }

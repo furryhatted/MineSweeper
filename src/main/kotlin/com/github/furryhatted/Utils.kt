@@ -4,6 +4,7 @@ import javafx.scene.media.Media
 import javafx.scene.media.MediaPlayer
 import javafx.scene.paint.Color
 import java.io.File
+import kotlin.math.pow
 
 const val BOMB: String = "\uD83D\uDCA3"
 const val FLAG: String = "\uD83D\uDEA9"
@@ -26,29 +27,31 @@ private val recycleMedia = { media: MediaPlayer -> media.stop() }
 val PALERED = Color.valueOf("#833")
 
 val boom: MediaPlayer =
-    MediaPlayer(Media(File("src/main/resources/boom.wav").toURI().toString())).apply {
+    MediaPlayer(Media(MineSweeper::class.java.getResource("/sounds/boom.wav")?.toExternalForm())).apply {
         rate = 2.5
         volume = 0.6
         setOnEndOfMedia { recycleMedia(this) }
     }
 
 val beep: MediaPlayer =
-    MediaPlayer(Media(File("src/main/resources/beep.wav").toURI().toString())).apply {
+    MediaPlayer(Media(MineSweeper::class.java.getResource("/sounds/beep.wav")?.toExternalForm())).apply {
         rate = 1.0
         volume = 1.0
         setOnEndOfMedia { recycleMedia(this) }
     }
 
 val tick: MediaPlayer =
-    MediaPlayer(Media(File("src/main/resources/tick.wav").toURI().toString())).apply {
+    MediaPlayer(Media(MineSweeper::class.java.getResource("/sounds/tick.wav")?.toExternalForm())).apply {
         rate = 1.0
         volume = 1.0
         setOnEndOfMedia { recycleMedia(this) }
     }
 
 val click: MediaPlayer =
-    MediaPlayer(Media(File("src/main/resources/click.wav").toURI().toString())).apply {
+    MediaPlayer(Media(MineSweeper::class.java.getResource("/sounds/click.wav")?.toExternalForm())).apply {
         rate = 1.0
         volume = 1.0
         setOnEndOfMedia { recycleMedia(this) }
     }
+
+fun Int.pow(value: Int) = this.toDouble().pow(value)

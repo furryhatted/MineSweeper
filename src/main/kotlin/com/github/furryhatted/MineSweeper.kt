@@ -32,23 +32,24 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
         if (logger.isDebugEnabled) logger.debug("Launching application")
     }
 
-    private fun createScene() {
+    private fun createScene(stage: Stage) {
         stylesheets = this.parameters.named["stylesheets"] ?: "default.css"
-        mainStage.scene = Scene(createRoot())
+        stage.scene = Scene(createRoot())
         //FIXME: Remove this or leave it - changes fade color for root pane
 //        mainStage.scene.fill = Color.BLACK
-        mainStage.sizeToScene()
-        mainStage.centerOnScreen()
-        mainStage.show()
+//        mainStage.show()
+        stage.centerOnScreen()
     }
 
 
     override fun start(stage: Stage) {
-        stage.initStyle(StageStyle.UTILITY)
-        stage.isResizable = false
-        stage.title = "Mine Sweeper"
         this.mainStage = stage
-        createScene()
+        stage.initStyle(StageStyle.TRANSPARENT)
+        stage.title = "Mine Sweeper"
+        stage.isResizable = false
+        stage.isMaximized = true
+        createScene(stage)
+        stage.show()
     }
 
     //FIXME: Refactor this spaghetti code
@@ -68,7 +69,7 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
             this.dialogPane.stylesheets.add("default.css")
             this.dialogPane.scene.fill = Color.TRANSPARENT
             this.initStyle(StageStyle.TRANSPARENT)
-            this.setOnHidden { createScene() }
+            this.setOnHidden { createScene(mainStage) }
             this.dialogPane.opacity = .0
             this.show()
             FadeTransition(Duration.seconds(.3), this.dialogPane).apply {
@@ -83,11 +84,9 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
     companion object {
         private val logger = LoggerFactory.getLogger(MineSweeper::class.java)
 
-        /*
-
-            fun main(args: Array<String>) {
-                launch(*args)
-            }
-    */
+        @JvmStatic
+        fun main(args: Array<String>) {
+            launch(MineSweeper::class.java, *args)
+        }
     }
 }

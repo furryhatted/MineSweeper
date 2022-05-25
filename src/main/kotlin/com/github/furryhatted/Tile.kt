@@ -11,9 +11,12 @@ import javafx.scene.input.MouseButton
 import javafx.scene.paint.Color.*
 import org.slf4j.LoggerFactory
 
+
 class Tile(
     val isMined: Boolean
 ) : Button() {
+    private val highlightAnimation = highlight(this)
+
     internal var tooltip = 0
     internal var isMarked = false
         private set
@@ -28,12 +31,26 @@ class Tile(
             when (event.button) {
                 MouseButton.PRIMARY -> doOpen(false)
                 MouseButton.SECONDARY -> doMark()
-                MouseButton.MIDDLE -> {
-                    if (event.isShiftDown && event.isControlDown && event.isAltDown) fireEvent(TileEvent(TILE_CHEAT, this))
-                }
+                MouseButton.MIDDLE ->
+                    if (event.isShiftDown
+                        && event.isControlDown
+                        && event.isAltDown
+                    ) fireEvent(TileEvent(TILE_CHEAT, this))
                 else -> Alert(CONFIRMATION, "Dude! Da fuk ur doing?!").showAndWait()
             }
         }
+        this.setOnMouseEntered {
+            this.style = "-fx-background-color: radial-gradient(center 50% 50%, radius 200%, #ccc, #33f);"
+            highlightAnimation.play()
+        }
+
+        this.setOnMouseExited {
+            this.style = null
+            highlightAnimation.stop()
+        }
+
+
+
         this.arm()
         if (logger.isTraceEnabled) logger.trace("Created $this[isMined=$isMined]")
     }
