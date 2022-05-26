@@ -5,16 +5,17 @@ import com.github.furryhatted.TileEvent.Companion.TILE_OPENED
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
 import javafx.event.EventHandler
-import javafx.scene.layout.AnchorPane
+import javafx.scene.layout.GridPane
 import javafx.util.Duration
 import org.slf4j.LoggerFactory
+import java.awt.Toolkit
 import kotlin.math.pow
 
 class FieldPane(
     private val columns: Int = DEFAULT_FIELD_WIDTH,
     private val rows: Int = DEFAULT_FIELD_HEIGHT,
     private val mines: Int = DEFAULT_MINE_COUNT
-) : EventHandler<TileEvent>, AnchorPane() {
+) : EventHandler<TileEvent>, GridPane() {
     private val tileMatrix: Map<Pair<Int, Int>, Tile>
 
     internal val isFinished: Boolean
@@ -75,19 +76,21 @@ class FieldPane(
 
     init {
         this.id = "field"
-        this.tileMatrix =
-            (0 until rows).map { r -> (0 until columns).map { c -> r to c } }.flatten()
-                .zip((0 until columns * rows).map { if (it < mines) Tile(true) else Tile(false) }.shuffled())
-                .onEach {
-                    it.second.layoutX = it.first.second * DEFAULT_TILE_SIZE
-                    it.second.layoutY = it.first.first * DEFAULT_TILE_SIZE
-                    it.second.setPrefSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
-                    it.second.setMaxSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
-                    it.second.setMinSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
-                    it.second.addEventHandler(TileEvent.ANY, this)
-                }.toMap()
+        this.tileMatrix = (0 until rows * columns)
+            .map { if (it < mines) Tile(true) else Tile(false) }
+            .shuffled()
+            .mapIndexed { index, tile ->
+                tile.addEventHandler(TileEvent.ANY, this)
+
+                tile.setPrefSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
+                tile.setMaxSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
+                tile.setMinSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
+                val y = index / rows
+                val x = index % rows
+                this.add(tile, y, x, 1, 1)
+                (y to x) to tile
+            }.toMap()
         this.tileMatrix.values.filter { !it.isMined }.forEach { t -> t.tooltip = adjacentTiles(t).count { it.isMined } }
-        this.children.addAll(this.tileMatrix.values)
         if (logger.isDebugEnabled) logger.debug("Created $this {${this.tileMatrix}}")
     }
 

@@ -56,11 +56,12 @@
 }
 
 #tile {
-    -fx-view-order: 3;
+    -fx-view-order: 1;
     -fx-border-width: 1px;
     -fx-border-style: solid;
     -fx-border-color: #111;
     -fx-background-color: #ccc;
+    -fx-background-insets: 1px;
     -fx-focus-traversable: false;
     -fx-effect: innershadow(three-pass-box, #8888, 25, 0.15, 0, 0);
 }
@@ -79,9 +80,9 @@
 }
 
 #tile:disabled {
-    -fx-view-order: 4;
+    -fx-view-order: 1;
     -fx-background-color: #555;
-    -fx-effect: innershadow(three-pass-box, #111, 25, 0.15, 0, 0);
+    -fx-effect: innershadow(three-pass-box, #1118, 25, 0.15, 0, 0);
 }
 
 .dialog-pane {

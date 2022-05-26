@@ -37,17 +37,16 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
         stage.scene = Scene(createRoot())
         //FIXME: Remove this or leave it - changes fade color for root pane
 //        mainStage.scene.fill = Color.BLACK
-//        mainStage.show()
         stage.centerOnScreen()
     }
 
 
     override fun start(stage: Stage) {
         this.mainStage = stage
-        stage.initStyle(StageStyle.TRANSPARENT)
+        stage.initStyle(StageStyle.UTILITY)
         stage.title = "Mine Sweeper"
-        stage.isResizable = false
-        stage.isMaximized = true
+//        stage.isResizable = false
+//        stage.isMaximized = true
         createScene(stage)
         stage.show()
     }
