@@ -1,9 +1,10 @@
 package com.github.furryhatted
 
+import javafx.scene.effect.Bloom
+import javafx.scene.image.ImageView
 import javafx.scene.media.Media
 import javafx.scene.media.MediaPlayer
 import javafx.scene.paint.Color
-import java.io.File
 import kotlin.math.pow
 
 const val BOMB: String = "\uD83D\uDCA3"
@@ -53,5 +54,13 @@ val click: MediaPlayer =
         volume = 1.0
         setOnEndOfMedia { recycleMedia(this) }
     }
+
+val explosion: ImageView
+    get() =
+        ImageView(MineSweeper::class.java.getResource("/images/boom.gif")?.toExternalForm())
+            .apply {
+                isSmooth = true
+                isCache = true
+            }
 
 fun Int.pow(value: Int) = this.toDouble().pow(value)

@@ -7,7 +7,6 @@ import javafx.scene.control.ContentDisplay.GRAPHIC_ONLY
 import javafx.scene.control.ContentDisplay.TEXT_ONLY
 import javafx.scene.effect.BlurType
 import javafx.scene.effect.DropShadow
-import javafx.scene.image.ImageView
 import javafx.scene.paint.Color
 import javafx.util.Duration
 import kotlin.random.Random
@@ -31,12 +30,12 @@ fun shake(node: Node, magnitude: Double, cycles: Int = Random.nextInt(6, 12), du
 fun explode(tile: Tile): Animation {
     val f1 = KeyFrame(Duration.seconds(.0), {
         tile.hideTooltip()
-        with(ImageView(MineSweeper::class.java.getResource("/images/boom.gif")?.toExternalForm())) {
+        tile.contentDisplay = GRAPHIC_ONLY
+        with (explosion) {
             this.fitWidth = tile.width
             this.fitHeight = tile.height
             tile.graphic = this
         }
-        tile.contentDisplay = GRAPHIC_ONLY
     })
     val f2 = KeyFrame(Duration.seconds(.5), {
         tile.graphic = null

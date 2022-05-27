@@ -3,10 +3,12 @@ package com.github.furryhatted
 import javafx.animation.FadeTransition
 import javafx.application.Application
 import javafx.event.EventHandler
+import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.ERROR
 import javafx.scene.control.Alert.AlertType.INFORMATION
+import javafx.scene.layout.BorderPane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
 import javafx.stage.StageStyle
@@ -15,45 +17,43 @@ import org.slf4j.LoggerFactory
 import kotlin.random.Random
 
 class MineSweeper : EventHandler<GameEvent>, Application() {
-    private lateinit var mainStage: Stage
-    private lateinit var stylesheets: String
+    private val root = BorderPane()
 
-    private fun createRoot(
-        columns: Int = Random.nextInt(5, 25),
-        rows: Int = Random.nextInt(5, 25),
+    private fun createGame(
+        columns: Int = 21,//Random.nextInt(3, 20),
+        rows: Int = 21,//Random.nextInt(3, 20),
         mines: Int = Random.nextInt(columns * rows / 25, columns * rows / 5),
-    ): RootPane = RootPane(columns, rows, mines)
-        .also {
-            it.addEventHandler(GameEvent.ANY, this)
-            it.stylesheets.add(stylesheets)
-        }
+    ) {
+        RootPane(columns, rows, mines)
+            .also {
+                it.addEventHandler(GameEvent.ANY, this)
+                root.center = it
+            }
+    }
 
     init {
         if (logger.isDebugEnabled) logger.debug("Launching application")
     }
 
-    private fun createScene(stage: Stage) {
-        stylesheets = this.parameters.named["stylesheets"] ?: "default.css"
-        stage.scene = Scene(createRoot())
-        //FIXME: Remove this or leave it - changes fade color for root pane
-//        mainStage.scene.fill = Color.BLACK
-        stage.centerOnScreen()
-    }
-
-
     override fun start(stage: Stage) {
-        this.mainStage = stage
         stage.initStyle(StageStyle.UTILITY)
         stage.title = "Mine Sweeper"
-//        stage.isResizable = false
-//        stage.isMaximized = true
-        createScene(stage)
+        stage.scene = Scene(root)
+//        stage.isFullScreen = true
+        stage.isResizable = false
+        root.id = "screen"
+        root.stylesheets.add(parameters.named["stylesheet"] ?: "default.css")
+        root.top = GameMenu
+        root.addEventHandler(GameEvent.ANY, this)
+        createGame()
         stage.show()
+        //FIXME: Remove this or leave it - changes fade color for root pane
+//        mainStage.scene.fill = Color.BLACK
     }
 
     //FIXME: Refactor this spaghetti code
     override fun handle(event: GameEvent) {
-        if (logger.isDebugEnabled) logger.debug("Received ${event.eventType} from ${event.source}")
+        if (logger.isDebugEnabled) logger.debug("Received $event")
         when (event.eventType) {
             GameEvent.GAME_WON -> {
                 Alert(INFORMATION, "Damn, you won... Your score is: ${(event.source as RootPane).score}")
@@ -64,11 +64,11 @@ class MineSweeper : EventHandler<GameEvent>, Application() {
                     .apply { this.headerText = "FAIL!" }
             }
         }.apply {
-            this.initOwner(mainStage)
+            this.initOwner((event.source as Node).scene.window)
             this.dialogPane.stylesheets.add("default.css")
             this.dialogPane.scene.fill = Color.TRANSPARENT
             this.initStyle(StageStyle.TRANSPARENT)
-            this.setOnHidden { createScene(mainStage) }
+            this.setOnHidden { createGame() }
             this.dialogPane.opacity = .0
             this.show()
             FadeTransition(Duration.seconds(.3), this.dialogPane).apply {

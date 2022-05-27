@@ -27,7 +27,7 @@ class RootPane(
     private var movesLeft: Int = c * r
     private var minesLeft: Int = m
 
-    private val bar: MenuBar
+//    private val bar: MenuBar
     private val heading: HeadingPane
     private val field: FieldPane
     private val timer: Timeline
@@ -43,14 +43,14 @@ class RootPane(
     init {
         this.id = "root"
         this.isCache = true
-        val exit = MenuItem("Exit").apply {
+/*        val exit = MenuItem("Exit").apply {
             setOnAction { Platform.exit() }
         }
         val menu = Menu("Game").apply {
             items.add(exit)
         }
 
-        this.bar = MenuBar(menu).apply { prefWidth = 400.0 }
+        this.bar = MenuBar(menu)*/
         this.field = FieldPane(c, r, m)
         this.heading = HeadingPane(c * r, m, 0)
         this.timer = Timeline(KeyFrame(Duration(1000.0), { heading.setTime(++duration); tick.play() })).also {
@@ -58,7 +58,7 @@ class RootPane(
         }
 
         field.addEventHandler(TileEvent.ANY, this)
-        children.add(bar)
+//        children.add(bar)
         children.add(heading)
         children.add(field)
         timer.play()

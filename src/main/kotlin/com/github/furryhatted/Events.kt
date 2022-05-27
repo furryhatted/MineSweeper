@@ -12,6 +12,8 @@ class GameEvent(eventType: EventType<out GameEvent>) : Event(eventType) {
         return super.getEventType() as EventType<out GameEvent>
     }
 
+    override fun toString(): String =
+        "${this.javaClass.simpleName}@${this.hashCode()}[eventType=${this.eventType}, source=${this.source}, target=${this.target}]"
     companion object {
         private const val serialVersionUID = 202205152L
 

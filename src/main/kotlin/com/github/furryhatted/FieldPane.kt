@@ -81,10 +81,8 @@ class FieldPane(
             .shuffled()
             .mapIndexed { index, tile ->
                 tile.addEventHandler(TileEvent.ANY, this)
-
-                tile.setPrefSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
-                tile.setMaxSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
                 tile.setMinSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
+                tile.setMaxSize(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
                 val y = index / rows
                 val x = index % rows
                 this.add(tile, y, x, 1, 1)
@@ -115,7 +113,7 @@ class FieldPane(
 
 
     companion object {
-        private const val DEFAULT_TILE_SIZE: Double = 49.0
+        private const val DEFAULT_TILE_SIZE: Double = 38.0
         private const val DEFAULT_FIELD_WIDTH: Int = 10
         private const val DEFAULT_FIELD_HEIGHT: Int = 10
         private const val DEFAULT_MINE_COUNT: Int = 10
