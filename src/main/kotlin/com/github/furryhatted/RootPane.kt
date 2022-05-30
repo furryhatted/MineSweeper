@@ -1,112 +1,81 @@
 package com.github.furryhatted
 
-import com.github.furryhatted.TileEvent.Companion.TILE_MARKED
-import com.github.furryhatted.TileEvent.Companion.TILE_OPENED
-import com.github.furryhatted.TileEvent.Companion.TILE_UNMARKED
-import javafx.animation.Animation
 import javafx.animation.FadeTransition
-import javafx.animation.KeyFrame
-import javafx.animation.Timeline
-import javafx.application.Platform
 import javafx.event.EventHandler
-import javafx.scene.control.Menu
-import javafx.scene.control.MenuBar
-import javafx.scene.control.MenuItem
-import javafx.scene.layout.VBox
+import javafx.scene.Node
+import javafx.scene.control.Alert
+import javafx.scene.control.Alert.AlertType.*
+import javafx.scene.layout.BorderPane
+import javafx.scene.paint.Color
+import javafx.stage.Stage
+import javafx.stage.StageStyle
 import javafx.util.Duration
 import org.slf4j.LoggerFactory
+import kotlin.random.Random
 
-
-class RootPane(
-    c: Int,
-    r: Int,
-    m: Int
-) : EventHandler<TileEvent>, VBox() {
-
-    private var duration: Int = 0
-    private var movesLeft: Int = c * r
-    private var minesLeft: Int = m
-
-//    private val bar: MenuBar
-    private val heading: HeadingPane
-    private val field: FieldPane
-    private val timer: Timeline
-
-
-    internal var score: Int = 0
-        private set(value) {
-            field = value
-            if (logger.isDebugEnabled) logger.debug("Score set: $field")
+class RootPane : EventHandler<GameEvent>, BorderPane() {
+    private val gameSettings: Triple<Int, Int, Int>
+        get() {
+            val columns: Int = Random.nextInt(3, 21)
+            val rows: Int = Random.nextInt(3, 21)
+            val mines: Int = Random.nextInt(1, columns * rows / 3)
+            return Triple(columns, rows, mines)
         }
-
 
     init {
         this.id = "root"
-        this.isCache = true
-/*        val exit = MenuItem("Exit").apply {
-            setOnAction { Platform.exit() }
-        }
-        val menu = Menu("Game").apply {
-            items.add(exit)
-        }
-
-        this.bar = MenuBar(menu)*/
-        this.field = FieldPane(c, r, m)
-        this.heading = HeadingPane(c * r, m, 0)
-        this.timer = Timeline(KeyFrame(Duration(1000.0), { heading.setTime(++duration); tick.play() })).also {
-            it.cycleCount = Animation.INDEFINITE
-        }
-
-        field.addEventHandler(TileEvent.ANY, this)
-//        children.add(bar)
-        children.add(heading)
-        children.add(field)
-        timer.play()
+        this.top = GameMenu()
+            .apply { addEventHandler(GameEvent.ANY, this@RootPane) }
+        this.center = GamePane(gameSettings)
+            .apply { addEventHandler(GameEvent.ANY, this@RootPane) }
     }
 
-    private fun finishGame(state: GameState) {
-        timer.stop()
-        when (state) {
-            GameState.WIN -> fireEvent(GameEvent(GameEvent.GAME_WON))
-            GameState.LOSS -> fireEvent(GameEvent(GameEvent.GAME_LOST))
-        }
-        FadeTransition(Duration.seconds(1.2), this).apply {
-            fromValue = 1.0
-            toValue = .4
-            play()
-        }
-    }
-
-    override fun handle(event: TileEvent) {
+    //FIXME: Refactor this spaghetti code
+    override fun handle(event: GameEvent) {
         if (logger.isDebugEnabled) logger.debug("Received $event")
+        event.consume()
+        (this.center as GamePane).finish()
         when (event.eventType) {
-            TILE_MARKED -> {
-                if (event.isMined) score += 10 else score -= 10
-                heading.setMines(--minesLeft)
-                heading.setMoves(--movesLeft)
-            }
-            TILE_UNMARKED -> {
-                if (event.isMined) score -= 10 else score += 10
-                heading.setMines(++minesLeft)
-                heading.setMoves(++movesLeft)
-            }
-            TILE_OPENED -> {
-                heading.setMoves(--movesLeft)
-                if (!event.isMined) score++
-                else {
-                    score /= 2
-                    heading.setMines(--minesLeft)
-                    finishGame(GameState.LOSS)
-                    return
+            GameEvent.GAME_WON ->
+                Alert(INFORMATION, "Damn, you won...")
+                    .apply { this.headerText = "SUCCESS!" }
+            GameEvent.GAME_LOST ->
+                Alert(ERROR, "You lose, Gringo!")
+                    .apply { this.headerText = "FAIL!" }
+            GameEvent.GAME_FORFEIT ->
+                Alert(WARNING, "Well... if you insist...")
+                    .apply { this.headerText = "FORFEIT!" }
+            else -> return
+        }.apply {
+            if (event.score != null) this.contentText += "\nYour score is: ${event.score}"
+            if (event.isRestart) this.contentText += "\nRestarting with same parameters!"
+            this.initOwner((event.source as Node).scene.window)
+            this.dialogPane.stylesheets.add("default.css")
+            this.dialogPane.scene.fill = Color.TRANSPARENT
+            this.initStyle(StageStyle.TRANSPARENT)
+            this.setOnHidden {
+                center =
+                    if (event.isRestart) GamePane((center as GamePane).settings)
+                    else GamePane(gameSettings)
+                center.apply { addEventHandler(GameEvent.ANY, this@RootPane) }
+                with(scene.window as Stage) {
+                    if (isFullScreen || !isResizable) return@with
+                    sizeToScene()
+                    centerOnScreen()
                 }
             }
+            this.dialogPane.opacity = .0
+            this.show()
+            FadeTransition(Duration.seconds(.3), this.dialogPane).apply {
+                fromValue = .0
+                toValue = 1.0
+                cycleCount = 1
+                play()
+            }
         }
-        if (field.isFinished) finishGame(GameState.WIN)
     }
 
-    override fun toString(): String = "${this.javaClass.simpleName}@${this.hashCode()}"
-
     companion object {
-        private val logger = LoggerFactory.getLogger(RootPane::class.java)
+        private val logger = LoggerFactory.getLogger(MineSweeper::class.java)
     }
 }

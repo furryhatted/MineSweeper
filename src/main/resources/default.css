@@ -2,8 +2,9 @@
     -fx-shape: "M0,0h+1v+1h-1v-1z";
 }
 
-#screen {
-
+#root {
+    -fx-fill-width: true;
+    -fx-fill-height: true;
 }
 
 .menu-bar {
@@ -21,18 +22,18 @@
 }
 
 .menu-item {
-    -fx-min-width: 8pc;
     -fx-text-alignment: right;
 }
 
 .menu-item .label {
+
     -fx-font-size: 16px;
     -fx-font-weight: normal;
 
 }
 
 
-#root {
+#game {
     -fx-fill-width: false;
     -fx-fill-height: false;
     -fx-view-order: 6;

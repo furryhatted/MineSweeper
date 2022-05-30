@@ -5,7 +5,24 @@ import javafx.event.Event
 import javafx.event.EventTarget
 import javafx.event.EventType
 
-class GameEvent(eventType: EventType<out GameEvent>) : Event(eventType) {
+class GameEvent(
+    @NamedArg("source") source: Any?,
+    @NamedArg("target") target: EventTarget?,
+    @NamedArg("eventType") eventType: EventType<out GameEvent>,
+    @NamedArg("score") val score: Int?,
+    @NamedArg("isRestart") val isRestart: Boolean
+) : Event(source, target, eventType) {
+
+    constructor(
+        @NamedArg("eventType") eventType: EventType<out GameEvent>,
+        @NamedArg("score") score: Int? = null,
+        @NamedArg("isRestart") isRestart: Boolean = false
+    ) : this(null, null, eventType, score, isRestart)
+
+    constructor(
+        @NamedArg("eventType") eventType: EventType<out GameEvent>,
+        @NamedArg("isRestart") isRestart: Boolean = false
+    ) : this(null, null, eventType, null, isRestart)
 
     @Suppress("UNCHECKED_CAST")
     override fun getEventType(): EventType<out GameEvent> {
@@ -14,6 +31,7 @@ class GameEvent(eventType: EventType<out GameEvent>) : Event(eventType) {
 
     override fun toString(): String =
         "${this.javaClass.simpleName}@${this.hashCode()}[eventType=${this.eventType}, source=${this.source}, target=${this.target}]"
+
     companion object {
         private const val serialVersionUID = 202205152L
 
@@ -22,6 +40,8 @@ class GameEvent(eventType: EventType<out GameEvent>) : Event(eventType) {
         val GAME_WON = EventType(ANY, "GAME_WON")
 
         val GAME_LOST = EventType(ANY, "GAME_LOST")
+
+        val GAME_FORFEIT = EventType(ANY, "GAME_FINISH")
     }
 }
 
@@ -54,16 +74,9 @@ class TileEvent(
     @NamedArg("isMarked") val isMarked: Boolean,
     @NamedArg("isMarked") val isMined: Boolean
 ) : InterfaceEvent(source, target, eventType) {
-    constructor(
-        @NamedArg("eventType") eventType: EventType<out TileEvent>,
-        tile: Tile
-    ) : this(
-        null,
-        null,
-        eventType,
-        tile.isMarked,
-        tile.isMined
-    )
+    constructor(@NamedArg("eventType") eventType: EventType<out TileEvent>, tile: Tile) :
+            this(null, null, eventType, tile.isMarked, tile.isMined)
+
 
     @Suppress("UNCHECKED_CAST")
     override fun getEventType(): EventType<out TileEvent> {

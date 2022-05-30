@@ -19,7 +19,6 @@ dependencies {
     implementation("org.openjfx:javafx-base:18.0.1")
     implementation("org.openjfx:javafx-controls:18.0.1")
     implementation("org.openjfx:javafx-media:18.0.1")
-
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
 }
 
@@ -47,12 +46,8 @@ tasks.withType<JavaExec> {
 }
 
 tasks.withType<Jar> {
-    // Otherwise you'll get a "No main manifest attribute" error
-    manifest {
-        attributes["Main-Class"] = "com.github.furryhatted.Launcher"
-    }
+    manifest { attributes["Main-Class"] = "com.github.furryhatted.Launcher" }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    // To add all the dependencies otherwise a "NoClassDefFoundError" error
     from(sourceSets.main.get().output)
     dependsOn(configurations.runtimeClasspath)
     from({
