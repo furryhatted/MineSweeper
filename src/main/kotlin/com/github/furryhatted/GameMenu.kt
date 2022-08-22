@@ -27,25 +27,25 @@ class GameMenu : MenuBar() {
         )
     }
 
-    fun newPressed() {
+    private fun newPressed() {
         fireEvent(GameEvent(GAME_FORFEIT))
     }
 
-    fun restartPressed() {
+    private fun restartPressed() {
         fireEvent(GameEvent(GAME_FORFEIT, true))
     }
 
-    fun settingsPressed() {
+    private fun settingsPressed() {
         println("settings")
 
     }
 
-    fun aboutPressed() {
+    private fun aboutPressed() {
         println("about")
 
     }
 
-    fun exitPressed() = with(this.scene.window as Stage) {
+    private fun exitPressed() = with(this.scene.window as Stage) {
         close()
     }
 }
